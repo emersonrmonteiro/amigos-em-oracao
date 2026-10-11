@@ -15,10 +15,28 @@
     try {
       D = await DB.ler();
     } catch (e) {
-      D = typeof SITE_DATA !== "undefined" ? JSON.parse(JSON.stringify(SITE_DATA)) : {};
+      D =
+        typeof SITE_DATA !== "undefined"
+          ? JSON.parse(JSON.stringify(SITE_DATA))
+          : {};
     }
     mostrarSkeleton(false);
     renderTudo(D);
+
+    // Registra visita em background (flag de sessão para não contar a mesma aba duas vezes)
+    if (!sessionStorage.getItem("visita_contada")) {
+      sessionStorage.setItem("visita_contada", "1");
+      try {
+        DB.invalidarCache();
+        const dadosVisita = await DB.ler();
+        if (!dadosVisita.config) dadosVisita.config = {};
+        dadosVisita.config.visualizacoes =
+          parseInt(dadosVisita.config.visualizacoes || 0) + 1;
+        await DB.salvar(dadosVisita);
+      } catch (e) {
+        /* falha silenciosa */
+      }
+    }
   }
 
   // Spinner/skeleton enquanto carrega
@@ -33,19 +51,24 @@
   // RENDER PRINCIPAL
   // ============================================================
   function renderTudo(D) {
-
     // --- HERO ---
-    document.getElementById("h-titulo").textContent    = D.titulo    || "DOS AMIGOS EM ORAÇÃO";
-    document.getElementById("h-subtitulo").textContent = D.subtitulo || "PAZ SEJA CONVOSCO 🔥";
+    document.getElementById("h-titulo").textContent =
+      D.titulo || "DOS AMIGOS EM ORAÇÃO";
+    document.getElementById("h-subtitulo").textContent =
+      D.subtitulo || "PAZ SEJA CONVOSCO 🔥";
 
     // Data: sempre a data atual do dispositivo (ignora o valor salvo no banco)
     const hoje = new Date();
-    const dataHoje = hoje.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const dataHoje = hoje.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
     document.getElementById("h-data").textContent = "📅 " + dataHoje;
 
     const lemaEl = document.getElementById("h-lema");
     lemaEl.innerHTML = "";
-    (D.lema || []).forEach(item => {
+    (D.lema || []).forEach((item) => {
       const s = document.createElement("span");
       s.textContent = item;
       lemaEl.appendChild(s);
@@ -76,8 +99,10 @@
     iniciarFormularioPedido(D);
 
     // --- RODAPÉ ---
-    document.getElementById("rodape-texto").textContent  = D.rodape || "Deus te abençoe 🌹";
-    document.getElementById("rodape-versic").textContent = D.versiculoReavivamento || "";
+    document.getElementById("rodape-texto").textContent =
+      D.rodape || "Deus te abençoe 🌹";
+    document.getElementById("rodape-versic").textContent =
+      D.versiculoReavivamento || "";
 
     // --- ABAS ---
     iniciarAbas();
@@ -91,7 +116,7 @@
     const patterns = [
       /youtu\.be\/([^?&]+)/,
       /youtube\.com\/watch\?v=([^&]+)/,
-      /youtube\.com\/embed\/([^?&]+)/
+      /youtube\.com\/embed\/([^?&]+)/,
     ];
     for (const p of patterns) {
       const m = url.match(p);
@@ -102,7 +127,10 @@
 
   function renderHino(h) {
     const container = document.getElementById("hino-container");
-    if (!h) { container.innerHTML = ""; return; }
+    if (!h) {
+      container.innerHTML = "";
+      return;
+    }
 
     const ytId = extrairYoutubeId(h.link);
     const embedHtml = ytId
@@ -144,7 +172,10 @@
   // ============================================================
   function renderOrador(orador, representacao) {
     const container = document.getElementById("orador-container");
-    if (!orador) { container.innerHTML = ""; return; }
+    if (!orador) {
+      container.innerHTML = "";
+      return;
+    }
     container.innerHTML = `
       <div class="card orador-card">
         <div class="orador-label">🛐 Todos em oração por</div>
@@ -179,20 +210,24 @@
 
     reais.forEach(({ p, originalIdx }, posicao) => {
       // Repete o banner a cada 10 itens (após o 10º, 20º...)
-      if (posicao > 0 && posicao % 10 === 0) container.appendChild(criarReavivamento());
+      if (posicao > 0 && posicao % 10 === 0)
+        container.appendChild(criarReavivamento());
 
       const card = document.createElement("div");
       let classes = "card pedido-card";
-      if (p.milagre)            classes += " milagre";
+      if (p.milagre) classes += " milagre";
       else if (p.agradecimento) classes += " gratidao";
-      else if (p.urgente)       classes += " urgente";
+      else if (p.urgente) classes += " urgente";
       card.className = classes;
 
       let tagHtml = "";
-      if (p.milagre)            tagHtml = `<span class="pedido-tag tag-milagre">✨ MILAGRE!</span>`;
-      else if (p.agradecimento) tagHtml = `<span class="pedido-tag tag-gratidao">🙌 GRATIDÃO</span>`;
-      else if (p.urgente)       tagHtml = `<span class="pedido-tag tag-urgente">⚡ URGENTE</span>`;
-      else                      tagHtml = `<span class="pedido-tag tag-pedido">🙏 ORAÇÃO</span>`;
+      if (p.milagre)
+        tagHtml = `<span class="pedido-tag tag-milagre">✨ MILAGRE!</span>`;
+      else if (p.agradecimento)
+        tagHtml = `<span class="pedido-tag tag-gratidao">🙌 GRATIDÃO</span>`;
+      else if (p.urgente)
+        tagHtml = `<span class="pedido-tag tag-urgente">⚡ URGENTE</span>`;
+      else tagHtml = `<span class="pedido-tag tag-pedido">🙏 ORAÇÃO</span>`;
 
       // Nome do grupo (se tiver)
       const grupoHtml = p.grupo
@@ -201,17 +236,17 @@
 
       // Contagem vem do banco (campo p.oracoes); "eu já orei" fica só no localStorage
       const oracoesCount = parseInt(p.oracoes || 0);
-      const localKey     = `orou_${originalIdx}_${(p.nome || "").replace(/\s/g, "_")}`;
-      const jaOrou       = localStorage.getItem(localKey) === "1";
+      const localKey = `orou_${originalIdx}_${(p.nome || "").replace(/\s/g, "_")}`;
+      const jaOrou = localStorage.getItem(localKey) === "1";
 
       card.innerHTML = `
         <div class="card-body" style="padding:14px 16px">
           ${tagHtml}
-          ${p.de       ? `<div class="pedido-de">De: ${p.de}</div>` : ""}
+          ${p.de ? `<div class="pedido-de">De: ${p.de}</div>` : ""}
           <div class="pedido-nome">${p.nome || ""}</div>
-          ${p.detalhe  ? `<div class="pedido-detalhe">(${p.detalhe})</div>` : ""}
-          ${p.pedido   ? `<div class="pedido-motivo">🛐 ${p.pedido}</div>` : ""}
-          ${p.descricao? `<div class="pedido-descricao">${p.descricao}</div>` : ""}
+          ${p.detalhe ? `<div class="pedido-detalhe">(${p.detalhe})</div>` : ""}
+          ${p.pedido ? `<div class="pedido-motivo">🛐 ${p.pedido}</div>` : ""}
+          ${p.descricao ? `<div class="pedido-descricao">${p.descricao}</div>` : ""}
           ${grupoHtml}
           <button class="btn-orar${jaOrou ? " orou" : ""}"
                   data-original-idx="${originalIdx}"
@@ -230,11 +265,13 @@
     container.appendChild(criarReavivamento());
 
     // Ativa os botões de oração
-    container.querySelectorAll(".btn-orar").forEach(btn => {
+    container.querySelectorAll(".btn-orar").forEach((btn) => {
+      // Pula os botões de reavivamento (tratados abaixo separadamente)
+      if (btn.classList.contains("btn-orar-reavivamento")) return;
       btn.addEventListener("click", async function () {
         const originalIdx = parseInt(this.dataset.originalIdx);
-        const localKey    = this.dataset.localKey;
-        const jaOrou      = localStorage.getItem(localKey) === "1";
+        const localKey = this.dataset.localKey;
+        const jaOrou = localStorage.getItem(localKey) === "1";
 
         if (this.disabled) return;
         this.disabled = true;
@@ -244,7 +281,8 @@
           // orações de outros usuários que clicaram ao mesmo tempo
           DB.invalidarCache();
           const dadosAtuais = await DB.ler();
-          const pedido = dadosAtuais.pedidos && dadosAtuais.pedidos[originalIdx];
+          const pedido =
+            dadosAtuais.pedidos && dadosAtuais.pedidos[originalIdx];
           if (!pedido) return;
 
           if (!jaOrou) {
@@ -272,7 +310,8 @@
             this.classList.remove("orou");
             this.setAttribute("aria-pressed", "false");
             this.querySelector(".btn-orar-texto").textContent = "Estou orando";
-            this.querySelector(".btn-orar-count").textContent = novoCount > 0 ? novoCount : "";
+            this.querySelector(".btn-orar-count").textContent =
+              novoCount > 0 ? novoCount : "";
 
             await DB.salvar(dadosAtuais);
             dadosGlobais = dadosAtuais;
@@ -284,14 +323,87 @@
         }
       });
     });
+
+    // Ativa os botões de oração do Reavivamento (sincroniza todos ao mesmo tempo)
+    container.querySelectorAll(".btn-orar-reavivamento").forEach((btn) => {
+      btn.addEventListener("click", async function () {
+        const localKey = "orou_reavivamento";
+        const jaOrou = localStorage.getItem(localKey) === "1";
+        if (this.disabled) return;
+        // Desabilita todos os botões de reavivamento durante a operação
+        document
+          .querySelectorAll(".btn-orar-reavivamento")
+          .forEach((b) => (b.disabled = true));
+
+        try {
+          DB.invalidarCache();
+          const dadosAtuais = await DB.ler();
+
+          if (!jaOrou) {
+            dadosAtuais.reavivamentoOracoes =
+              parseInt(dadosAtuais.reavivamentoOracoes || 0) + 1;
+            localStorage.setItem(localKey, "1");
+            showToast("🙏 Orando pelo reavivamento!");
+            syncReavivamentoBotoes(true, dadosAtuais.reavivamentoOracoes);
+            await DB.salvar(dadosAtuais);
+            dadosGlobais = dadosAtuais;
+          } else {
+            dadosAtuais.reavivamentoOracoes = Math.max(
+              0,
+              parseInt(dadosAtuais.reavivamentoOracoes || 0) - 1,
+            );
+            localStorage.removeItem(localKey);
+            syncReavivamentoBotoes(false, dadosAtuais.reavivamentoOracoes);
+            await DB.salvar(dadosAtuais);
+            dadosGlobais = dadosAtuais;
+          }
+        } catch (e) {
+          showToast("❌ Não foi possível registrar. Tente novamente.", 3000);
+        } finally {
+          document
+            .querySelectorAll(".btn-orar-reavivamento")
+            .forEach((b) => (b.disabled = false));
+        }
+      });
+    });
   }
 
   function criarReavivamento() {
     const el = document.createElement("div");
     el.className = "card pedido-card reavivamento";
+
+    // Chave única no localStorage para "estou orando pelo reavivamento"
+    const localKey = "orou_reavivamento";
+    const jaOrou = localStorage.getItem(localKey) === "1";
+    // Contagem vem de dadosGlobais.reavivamentoOracoes
+    const oracoesCount = parseInt(
+      (dadosGlobais && dadosGlobais.reavivamentoOracoes) || 0,
+    );
+
     el.innerHTML = `<div class="card-body" style="padding:14px 16px;text-align:center">
-      <div class="reavivamento-text">🙏 REAVIVAMENTO e REFORMA 🙏</div></div>`;
+      <div class="reavivamento-text">🙏 REAVIVAMENTO e REFORMA 🙏</div>
+      <button class="btn-orar btn-orar-reavivamento${jaOrou ? " orou" : ""}"
+              data-local-key="${localKey}"
+              aria-label="Estou orando pelo reavivamento"
+              aria-pressed="${jaOrou}">
+        <span class="btn-orar-icon">🙏</span>
+        <span class="btn-orar-texto">${jaOrou ? "Orando!" : "Estou orando"}</span>
+        <span class="btn-orar-count">${oracoesCount > 0 ? oracoesCount : ""}</span>
+      </button>
+    </div>`;
     return el;
+  }
+
+  // Atualiza visualmente todos os cards de reavivamento renderizados
+  function syncReavivamentoBotoes(jaOrou, count) {
+    document.querySelectorAll(".btn-orar-reavivamento").forEach((btn) => {
+      btn.classList.toggle("orou", jaOrou);
+      btn.setAttribute("aria-pressed", jaOrou ? "true" : "false");
+      btn.querySelector(".btn-orar-texto").textContent = jaOrou
+        ? "Orando!"
+        : "Estou orando";
+      btn.querySelector(".btn-orar-count").textContent = count > 0 ? count : "";
+    });
   }
 
   // ============================================================
@@ -301,7 +413,7 @@
     const container = document.getElementById("motivos-container");
     container.innerHTML = "";
 
-    motivos.forEach(m => {
+    motivos.forEach((m) => {
       const ytId = m.link ? extrairYoutubeId(m.link) : null;
       const card = document.createElement("div");
       card.className = "motivo-card" + (m.link ? " tem-link" : "");
@@ -319,13 +431,18 @@
         ${thumbHtml}
         <div class="motivo-titulo">${m.titulo}</div>
         ${m.referencia ? `<div class="motivo-ref">${m.referencia}</div>` : ""}
-        ${m.descricao  ? `<div class="motivo-desc">${m.descricao}</div>`  : ""}
-        ${m.link       ? `<a href="${m.link}" target="_blank" rel="noopener" class="motivo-link">
+        ${m.descricao ? `<div class="motivo-desc">${m.descricao}</div>` : ""}
+        ${
+          m.link
+            ? `<a href="${m.link}" target="_blank" rel="noopener" class="motivo-link">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-          Ore comigo</a>` : ""}`;
-      if (m.link) card.addEventListener("click", e => {
-        if (!e.target.closest("a")) window.open(m.link, "_blank", "noopener");
-      });
+          Ore comigo</a>`
+            : ""
+        }`;
+      if (m.link)
+        card.addEventListener("click", (e) => {
+          if (!e.target.closest("a")) window.open(m.link, "_blank", "noopener");
+        });
       container.appendChild(card);
     });
   }
@@ -346,7 +463,7 @@
       return;
     }
 
-    grupos.forEach(g => {
+    grupos.forEach((g) => {
       const card = document.createElement("div");
       card.className = "card grupo-card";
       card.innerHTML = `
@@ -366,17 +483,18 @@
   // LISTA PÚBLICA
   // ============================================================
   function renderListaPublica(lista) {
-    const container    = document.getElementById("lista-container");
-    const contadorEl   = document.getElementById("lista-contador");
-    const buscaEl      = document.getElementById("lista-busca");
+    const container = document.getElementById("lista-container");
+    const contadorEl = document.getElementById("lista-contador");
+    const buscaEl = document.getElementById("lista-busca");
 
     function render(filtro) {
       container.innerHTML = "";
       let visiveis = 0;
       lista.forEach((nome, idx) => {
-        const item  = document.createElement("div");
+        const item = document.createElement("div");
         item.className = "lista-item";
-        const match = !filtro || nome.toLowerCase().includes(filtro.toLowerCase());
+        const match =
+          !filtro || nome.toLowerCase().includes(filtro.toLowerCase());
         if (!match) item.classList.add("lista-hidden");
         else visiveis++;
         item.innerHTML = `<span class="lista-num">${idx + 1}</span><span class="lista-nome">${nome}</span>`;
@@ -386,30 +504,35 @@
     }
 
     render("");
-    buscaEl.addEventListener("input", e => render(e.target.value));
+    buscaEl.addEventListener("input", (e) => render(e.target.value));
   }
 
   // ============================================================
   // MENSAGEM WHATSAPP
   // ============================================================
   function renderMensagem(D) {
-    const cfg         = D.config || {};
+    const cfg = D.config || {};
     const linkSiteVal = cfg.linkSite || "https://seu-site.netlify.app";
 
     // Monta a string da oração no formato: referencia - numero - titulo
-    const hinoObj  = D.hinodia || {};
-    const oracao   = [hinoObj.referencia, hinoObj.numero, hinoObj.titulo]
-                       .filter(Boolean).join(" - ");
+    const hinoObj = D.hinodia || {};
+    const oracao = [hinoObj.referencia, hinoObj.numero, hinoObj.titulo]
+      .filter(Boolean)
+      .join(" - ");
     // {HINO} mantido por compatibilidade (mesmo valor que {ORACAO})
-    const linkYt   = hinoObj.link || "";
-    const orador   = D.orador        || "";
-    const repres   = D.representacao || "";
+    const linkYt = hinoObj.link || "";
+    const orador = D.orador || "";
+    const repres = D.representacao || "";
     const intercedido = D.intercedidoDia
       ? "\uD83D\uDEF0 Intercedido do dia: " + D.intercedidoDia
       : "";
 
     // Data atual do dispositivo
-    const dataHoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const dataHoje = new Date().toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
 
     // Template padrão caso nenhum tenha sido configurado
     const templatePadrao =
@@ -429,13 +552,13 @@
     // Substitui todas as variáveis — usa replaceAll para cobrir múltiplas ocorrências
     function substituir(tpl) {
       return tpl
-        .replace(/\{DATA\}/g,            dataHoje)
-        .replace(/\{ORACAO\}/g,          oracao)
-        .replace(/\{HINO\}/g,            oracao)          // alias retrocompatível
-        .replace(/\{LINK_YOUTUBE\}/g,    linkYt)
-        .replace(/\{ORADOR\}/g,          orador)
-        .replace(/\{REPRESENTACAO\}/g,   repres)
-        .replace(/\{LINK_SITE\}/g,       linkSiteVal)
+        .replace(/\{DATA\}/g, dataHoje)
+        .replace(/\{ORACAO\}/g, oracao)
+        .replace(/\{HINO\}/g, oracao) // alias retrocompatível
+        .replace(/\{LINK_YOUTUBE\}/g, linkYt)
+        .replace(/\{ORADOR\}/g, orador)
+        .replace(/\{REPRESENTACAO\}/g, repres)
+        .replace(/\{LINK_SITE\}/g, linkSiteVal)
         .replace(/\{INTERCEDIDO_DIA\}/g, intercedido);
     }
 
@@ -446,61 +569,88 @@
     // --- Link do site ---
     const linkEl = document.getElementById("link-site-display");
     linkEl.textContent = linkSiteVal;
-    linkEl.href        = linkSiteVal;
+    linkEl.href = linkSiteVal;
 
     // --- Mensagem completa (com lista de pedidos) ---
     function gerarCompleta() {
       const linhas = [];
       linhas.push(resumida);
       linhas.push("");
-      linhas.push("\uD83D\uDEF0\uD83D\uDEF0\uD83D\uDEF0 PEDIDOS E AGRADECIMENTOS \uD83D\uDEF0\uD83D\uDEF0\uD83D\uDEF0");
+      linhas.push(
+        "\uD83D\uDEF0\uD83D\uDEF0\uD83D\uDEF0 PEDIDOS E AGRADECIMENTOS \uD83D\uDEF0\uD83D\uDEF0\uD83D\uDEF0",
+      );
       linhas.push("");
-      (D.pedidos || []).filter(p => !p.destaque).forEach(p => {
-        if (p.agradecimento || p.milagre) linhas.push("\uD83D\uDE4C GRATIDÃO");
-        if (p.de)       linhas.push("De: " + p.de);
-        if (p.nome)     linhas.push("\uD83D\uDE4F " + p.nome);
-        if (p.detalhe)  linhas.push("(" + p.detalhe + ")");
-        if (p.pedido)   linhas.push("\uD83D\uDEF0 " + p.pedido);
-        if (p.descricao) linhas.push(p.descricao);
-        linhas.push("======================");
-      });
+      (D.pedidos || [])
+        .filter((p) => !p.destaque)
+        .forEach((p) => {
+          if (p.agradecimento || p.milagre)
+            linhas.push("\uD83D\uDE4C GRATIDÃO");
+          if (p.de) linhas.push("De: " + p.de);
+          if (p.nome) linhas.push("\uD83D\uDE4F " + p.nome);
+          if (p.detalhe) linhas.push("(" + p.detalhe + ")");
+          if (p.pedido) linhas.push("\uD83D\uDEF0 " + p.pedido);
+          if (p.descricao) linhas.push(p.descricao);
+          linhas.push("======================");
+        });
       return linhas.join("\n");
     }
 
     // Botões
     document.getElementById("btn-wpp-enviar").onclick = () =>
-      window.open("https://wa.me/?text=" + encodeURIComponent(resumida), "_blank", "noopener");
+      window.open(
+        "https://wa.me/?text=" + encodeURIComponent(resumida),
+        "_blank",
+        "noopener",
+      );
 
     document.getElementById("btn-copiar").onclick = function () {
       navigator.clipboard.writeText(resumida).then(() => {
-        this.textContent = "\u2705 Copiado!"; this.classList.add("copied");
+        this.textContent = "\u2705 Copiado!";
+        this.classList.add("copied");
         showToast("Mensagem copiada!");
-        setTimeout(() => { this.textContent = "\uD83D\uDCCB Copiar Mensagem Resumida"; this.classList.remove("copied"); }, 2500);
+        setTimeout(() => {
+          this.textContent = "\uD83D\uDCCB Copiar Mensagem Resumida";
+          this.classList.remove("copied");
+        }, 2500);
       });
     };
 
     document.getElementById("btn-copiar-completa").onclick = function () {
       navigator.clipboard.writeText(gerarCompleta()).then(() => {
-        this.textContent = "\u2705 Copiado!"; this.classList.add("copied");
+        this.textContent = "\u2705 Copiado!";
+        this.classList.add("copied");
         showToast("Mensagem completa copiada!");
-        setTimeout(() => { this.textContent = "\uD83D\uDCC4 Copiar Mensagem Completa"; this.classList.remove("copied"); }, 2500);
+        setTimeout(() => {
+          this.textContent = "\uD83D\uDCC4 Copiar Mensagem Completa";
+          this.classList.remove("copied");
+        }, 2500);
       });
     };
 
     document.getElementById("btn-copiar-link").onclick = () =>
-      navigator.clipboard.writeText(linkSiteVal).then(() => showToast("Link copiado!"));
+      navigator.clipboard
+        .writeText(linkSiteVal)
+        .then(() => showToast("Link copiado!"));
   }
 
   // ============================================================
   // ABAS
   // ============================================================
   function iniciarAbas() {
-    document.querySelectorAll(".tab-btn").forEach(btn => {
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
-        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-        btn.classList.add("active"); btn.setAttribute("aria-selected","true");
-        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
+        document
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
+        document
+          .getElementById("tab-" + btn.dataset.tab)
+          .classList.add("active");
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
     });
@@ -511,7 +661,8 @@
   // ============================================================
   function showToast(msg, duration) {
     const t = document.getElementById("toast");
-    t.textContent = msg; t.classList.add("show");
+    t.textContent = msg;
+    t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), duration || 2500);
   }
 
@@ -519,15 +670,16 @@
   // FORMULÁRIO DE NOVO PEDIDO (tela pública)
   // ============================================================
   function iniciarFormularioPedido(D) {
-    const btn      = document.getElementById("btn-enviar-pedido");
+    const btn = document.getElementById("btn-enviar-pedido");
     const feedback = document.getElementById("np-feedback");
     if (!btn) return;
 
     // Popula o select de grupos
     const selectGrupo = document.getElementById("np-grupo");
     if (selectGrupo) {
-      selectGrupo.innerHTML = '<option value="">-- Nenhum / Não informar --</option>';
-      (D.grupos || []).forEach(g => {
+      selectGrupo.innerHTML =
+        '<option value="">-- Nenhum / Não informar --</option>';
+      (D.grupos || []).forEach((g) => {
         const opt = document.createElement("option");
         opt.value = g.nome;
         opt.textContent = g.nome;
@@ -536,19 +688,21 @@
     }
 
     btn.addEventListener("click", async () => {
-      const de       = (document.getElementById("np-de").value       || "").trim();
-      const nome     = (document.getElementById("np-nome").value     || "").trim();
-      const pedido   = (document.getElementById("np-pedido").value   || "").trim();
-      const descricao= (document.getElementById("np-descricao").value|| "").trim();
-      const urgente  = document.getElementById("np-urgente").checked;
-      const grupo    = selectGrupo ? (selectGrupo.value || "") : "";
+      const de = (document.getElementById("np-de").value || "").trim();
+      const nome = (document.getElementById("np-nome").value || "").trim();
+      const pedido = (document.getElementById("np-pedido").value || "").trim();
+      const descricao = (
+        document.getElementById("np-descricao").value || ""
+      ).trim();
+      const urgente = document.getElementById("np-urgente").checked;
+      const grupo = selectGrupo ? selectGrupo.value || "" : "";
 
       if (!nome || !pedido) {
         mostrarFeedback("⚠️ Preencha o nome e o motivo do pedido.", false);
         return;
       }
 
-      btn.disabled    = true;
+      btn.disabled = true;
       btn.textContent = "Enviando...";
 
       try {
@@ -558,26 +712,32 @@
         if (!dadosAtuais.pedidos) dadosAtuais.pedidos = [];
 
         const novoPedido = {
-          tipo:      "pedido",
-          de:        de,
-          nome:      nome,
-          pedido:    pedido,
+          tipo: "pedido",
+          de: de,
+          nome: nome,
+          pedido: pedido,
           descricao: descricao,
-          urgente:   urgente,
-          grupo:     grupo
+          urgente: urgente,
+          grupo: grupo,
         };
 
         // Insere no início da lista de pedidos (mais visível)
-        const primNaoDestaque = dadosAtuais.pedidos.findIndex(p => !p.destaque);
-        if (primNaoDestaque >= 0) dadosAtuais.pedidos.splice(primNaoDestaque, 0, novoPedido);
+        const primNaoDestaque = dadosAtuais.pedidos.findIndex(
+          (p) => !p.destaque,
+        );
+        if (primNaoDestaque >= 0)
+          dadosAtuais.pedidos.splice(primNaoDestaque, 0, novoPedido);
         else dadosAtuais.pedidos.unshift(novoPedido);
 
         const resultado = await DB.salvar(dadosAtuais);
 
         if (resultado.ok || resultado.local) {
-          mostrarFeedback("✅ Pedido enviado! Obrigado por compartilhar — oraremos juntos. 🙏", true);
+          mostrarFeedback(
+            "✅ Pedido enviado! Obrigado por compartilhar — oraremos juntos. 🙏",
+            true,
+          );
           // Limpa os campos
-          ["np-de","np-nome","np-pedido","np-descricao"].forEach(id => {
+          ["np-de", "np-nome", "np-pedido", "np-descricao"].forEach((id) => {
             document.getElementById(id).value = "";
           });
           document.getElementById("np-urgente").checked = false;
@@ -585,24 +745,29 @@
           // Re-renderiza a lista de pedidos com o novo item
           renderPedidos(dadosAtuais.pedidos, dadosAtuais);
         } else {
-          mostrarFeedback("❌ Não foi possível enviar. Tente novamente.", false);
+          mostrarFeedback(
+            "❌ Não foi possível enviar. Tente novamente.",
+            false,
+          );
         }
       } catch (e) {
         mostrarFeedback("❌ Erro ao enviar: " + e.message, false);
       } finally {
-        btn.disabled    = false;
+        btn.disabled = false;
         btn.textContent = "🙏 Enviar Pedido";
       }
     });
 
     function mostrarFeedback(msg, sucesso) {
-      feedback.textContent   = msg;
+      feedback.textContent = msg;
       feedback.style.display = "block";
       feedback.style.background = sucesso ? "#e8faf0" : "#fde8e8";
-      feedback.style.color      = sucesso ? "#1a6e3a" : "#c0392b";
-      feedback.style.border     = `1px solid ${sucesso ? "#a3e0c0" : "#f5b7b1"}`;
-      if (sucesso) setTimeout(() => { feedback.style.display = "none"; }, 5000);
+      feedback.style.color = sucesso ? "#1a6e3a" : "#c0392b";
+      feedback.style.border = `1px solid ${sucesso ? "#a3e0c0" : "#f5b7b1"}`;
+      if (sucesso)
+        setTimeout(() => {
+          feedback.style.display = "none";
+        }, 5000);
     }
   }
-
 })();

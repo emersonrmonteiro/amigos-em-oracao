@@ -12,10 +12,10 @@
 const DB = (() => {
   "use strict";
 
-  const JSONBIN_BASE  = "https://api.jsonbin.io/v3/b";
-  const CACHE_KEY     = "amigos_data";          // localStorage cache
-  const CONFIG_KEY    = "amigos_db_config";     // localStorage config JSONBin
-  const CACHE_TTL_MS  = 5 * 60 * 1000;         // 5 min — tempo máx do cache
+  const JSONBIN_BASE = "https://api.jsonbin.io/v3/b";
+  const CACHE_KEY = "amigos_data"; // localStorage cache
+  const CONFIG_KEY = "amigos_db_config"; // localStorage config JSONBin
+  const CACHE_TTL_MS = 0; // 0 = sem cache — sempre busca do servidor
 
   // ----------------------------------------------------------
   // CONFIGURAÇÃO (BIN ID e API KEY)
@@ -30,7 +30,11 @@ const DB = (() => {
     // 1) Preferência: variáveis injetadas em tempo de build pelo Netlify
     const env = (typeof window !== "undefined" && window.ENV_CONFIG) || {};
     if (env.JSONBIN_BIN_ID && env.JSONBIN_API_KEY) {
-      return { binId: env.JSONBIN_BIN_ID, apiKey: env.JSONBIN_API_KEY, fromEnv: true };
+      return {
+        binId: env.JSONBIN_BIN_ID,
+        apiKey: env.JSONBIN_API_KEY,
+        fromEnv: true,
+      };
     }
 
     // 2) Fallback: configuração manual salva no localStorage do admin
@@ -44,7 +48,10 @@ const DB = (() => {
   function setConfig(binId, apiKey) {
     // setConfig só escreve no localStorage (usado pelo painel admin manual)
     // Quando ENV_CONFIG está presente, ele já sobrepõe automaticamente
-    localStorage.setItem(CONFIG_KEY, JSON.stringify({ binId: binId.trim(), apiKey: apiKey.trim() }));
+    localStorage.setItem(
+      CONFIG_KEY,
+      JSON.stringify({ binId: binId.trim(), apiKey: apiKey.trim() }),
+    );
   }
 
   function isConfigurado() {
@@ -67,7 +74,7 @@ const DB = (() => {
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       // Verifica se o cache tem timestamp e se ainda é válido
-      if (parsed.__ts && (Date.now() - parsed.__ts) < CACHE_TTL_MS) {
+      if (parsed.__ts && Date.now() - parsed.__ts < CACHE_TTL_MS) {
         const dados = Object.assign({}, parsed);
         delete dados.__ts;
         return dados;
@@ -94,8 +101,10 @@ const DB = (() => {
       const raw = localStorage.getItem(CACHE_KEY);
       if (!raw) return false;
       const parsed = JSON.parse(raw);
-      return !!(parsed.__ts && (Date.now() - parsed.__ts) < CACHE_TTL_MS);
-    } catch (e) { return false; }
+      return !!(parsed.__ts && Date.now() - parsed.__ts < CACHE_TTL_MS);
+    } catch (e) {
+      return false;
+    }
   }
 
   // ----------------------------------------------------------
@@ -113,10 +122,11 @@ const DB = (() => {
       try {
         const cfg = getConfig();
         const resp = await fetch(`${JSONBIN_BASE}/${cfg.binId}/latest`, {
+          cache: "no-store", // nunca usa cache do navegador
           headers: {
             "X-Master-Key": cfg.apiKey,
-            "X-Bin-Meta":   "false"   // retorna só o record, sem metadados
-          }
+            "X-Bin-Meta": "false", // retorna só o record, sem metadados
+          },
         });
 
         if (resp.ok) {
@@ -126,9 +136,16 @@ const DB = (() => {
         }
 
         // Erro HTTP (ex: chave errada, bin não existe)
-        console.warn("[DB] JSONBin retornou erro:", resp.status, resp.statusText);
+        console.warn(
+          "[DB] JSONBin retornou erro:",
+          resp.status,
+          resp.statusText,
+        );
       } catch (err) {
-        console.warn("[DB] Falha ao conectar no JSONBin (offline?):", err.message);
+        console.warn(
+          "[DB] Falha ao conectar no JSONBin (offline?):",
+          err.message,
+        );
       }
     }
 
@@ -141,7 +158,9 @@ const DB = (() => {
 
     // 4) Último recurso: dados hardcoded do data.js
     console.info("[DB] Usando SITE_DATA padrão.");
-    return JSON.parse(JSON.stringify(typeof SITE_DATA !== "undefined" ? SITE_DATA : {}));
+    return JSON.parse(
+      JSON.stringify(typeof SITE_DATA !== "undefined" ? SITE_DATA : {}),
+    );
   }
 
   // ----------------------------------------------------------
@@ -159,13 +178,13 @@ const DB = (() => {
     try {
       const cfg = getConfig();
       const resp = await fetch(`${JSONBIN_BASE}/${cfg.binId}`, {
-        method:  "PUT",
+        method: "PUT",
         headers: {
-          "Content-Type":  "application/json",
-          "X-Master-Key":  cfg.apiKey,
-          "X-Bin-Versioning": "false"  // não cria versões — economiza cota
+          "Content-Type": "application/json",
+          "X-Master-Key": cfg.apiKey,
+          "X-Bin-Versioning": "false", // não cria versões — economiza cota
         },
-        body: JSON.stringify(dados)
+        body: JSON.stringify(dados),
       });
 
       if (resp.ok) {
@@ -190,12 +209,12 @@ const DB = (() => {
       const resp = await fetch(JSONBIN_BASE, {
         method: "POST",
         headers: {
-          "Content-Type":  "application/json",
-          "X-Master-Key":  apiKey.trim(),
-          "X-Bin-Name":    nomeBin || "amigos-em-oracao",
-          "X-Bin-Private": "true"
+          "Content-Type": "application/json",
+          "X-Master-Key": apiKey.trim(),
+          "X-Bin-Name": nomeBin || "amigos-em-oracao",
+          "X-Bin-Private": "true",
         },
-        body: JSON.stringify(dadosIniciais)
+        body: JSON.stringify(dadosIniciais),
       });
 
       if (resp.ok) {
@@ -230,6 +249,15 @@ const DB = (() => {
   }
 
   // API pública
-  return { ler, salvar, criarBin, getConfig, setConfig, isConfigurado, isFromEnv, invalidarCache, getCacheLocal };
-
+  return {
+    ler,
+    salvar,
+    criarBin,
+    getConfig,
+    setConfig,
+    isConfigurado,
+    isFromEnv,
+    invalidarCache,
+    getCacheLocal,
+  };
 })();
