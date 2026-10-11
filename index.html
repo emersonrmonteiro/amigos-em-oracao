@@ -49,321 +49,372 @@
     </div>
 
     <!-- ======================================================
-       HERO
-  ====================================================== -->
-    <header class="hero">
-      <span class="hero-emoji">🙏</span>
-      <h1 id="h-titulo">DOS AMIGOS EM ORAÇÃO</h1>
-      <div class="hero-sub" id="h-subtitulo">PAZ SEJA CONVOSCO 🔥</div>
-      <div class="hero-data" id="h-data">📅 30/08/2026</div>
-      <div class="hero-lema" id="h-lema"></div>
+       TOPBAR
+    ====================================================== -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <button
+          id="btn-hamburger"
+          class="topbar-right-btn"
+          aria-label="Abrir menu"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <a class="brand" href="#">
+          <span class="brand-emoji">🙏</span>
+          <span class="brand-name">Dos Amigos em Oração</span>
+        </a>
+      </div>
+
+      <div class="topbar-center">
+        <button
+          class="tab-btn topbar-tab active"
+          data-tab="pedidos"
+          data-tooltip="Pedidos &amp; Agradecimentos"
+          role="tab"
+          aria-selected="true"
+        >
+          <i class="fa-solid fa-hands-praying"></i>
+        </button>
+        <button
+          class="tab-btn topbar-tab"
+          data-tab="lista"
+          data-tooltip="Lista de Intercedidos"
+          role="tab"
+          aria-selected="false"
+        >
+          <i class="fa-solid fa-list-ul"></i>
+        </button>
+      </div>
+
+      <div class="topbar-right">
+        <button
+          id="btn-theme"
+          class="topbar-right-btn"
+          data-tooltip="Alternar tema"
+          aria-label="Alternar tema"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a
+          class="topbar-right-btn"
+          href="admin.html"
+          data-tooltip="Administração"
+          aria-label="Administração"
+        >
+          <i class="fa-solid fa-gear"></i>
+        </a>
+      </div>
     </header>
 
     <!-- ======================================================
-       ABAS DE NAVEGAÇÃO
-  ====================================================== -->
-    <nav class="tabs" role="tablist">
-      <button
-        class="tab-btn active"
-        data-tab="pedidos"
-        role="tab"
-        aria-selected="true"
-      >
-        🙏 Pedidos<br /><span style="font-size: 0.7rem; opacity: 0.85"
-          >Agradecimentos</span
-        >
-      </button>
-      <button
-        class="tab-btn"
-        data-tab="motivos"
-        role="tab"
-        aria-selected="false"
-      >
-        📋 Motivos
-      </button>
-      <button
-        class="tab-btn"
-        data-tab="grupos"
-        role="tab"
-        aria-selected="false"
-      >
-        💬 Grupos
-      </button>
-      <button class="tab-btn" data-tab="lista" role="tab" aria-selected="false">
-        👥 Lista
-      </button>
-      <button
-        class="tab-btn"
-        data-tab="mensagem"
-        role="tab"
-        aria-selected="false"
-      >
-        📲 Mensagem
-      </button>
-    </nav>
+       APP BODY (sidebar + conteúdo)
+    ====================================================== -->
+    <div id="app-body">
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <nav>
+          <button
+            class="tab-btn sidebar-item active"
+            data-tab="pedidos"
+            role="tab"
+            aria-selected="true"
+          >
+            <i class="fa-solid fa-hands-praying"></i>
+            Pedidos &amp; Agradecimentos
+          </button>
+          <button
+            class="tab-btn sidebar-item"
+            data-tab="motivos"
+            role="tab"
+            aria-selected="false"
+          >
+            <i class="fa-solid fa-clipboard-list"></i>
+            Motivos
+          </button>
+          <button
+            class="tab-btn sidebar-item"
+            data-tab="grupos"
+            role="tab"
+            aria-selected="false"
+          >
+            <i class="fa-solid fa-comments"></i>
+            Grupos
+          </button>
+          <button
+            class="tab-btn sidebar-item"
+            data-tab="lista"
+            role="tab"
+            aria-selected="false"
+          >
+            <i class="fa-solid fa-list-ul"></i>
+            Lista de Intercedidos
+          </button>
+          <button
+            class="tab-btn sidebar-item"
+            data-tab="mensagem"
+            role="tab"
+            aria-selected="false"
+          >
+            <i class="fa-brands fa-whatsapp"></i>
+            Mensagem para WhatsApp
+          </button>
+          <a class="sidebar-item sidebar-admin" href="admin.html">
+            <i class="fa-solid fa-gear"></i>
+            Administração
+          </a>
+        </nav>
+      </aside>
 
-    <!-- ======================================================
-       CONTEÚDO PRINCIPAL
-  ====================================================== -->
-    <main class="main-content">
-      <!-- ---- ABA: PEDIDOS ---- -->
-      <section class="section active" id="tab-pedidos" role="tabpanel">
-        <!-- Hino do Dia -->
-        <div id="hino-container"></div>
+      <!-- Overlay para fechar sidebar no mobile -->
+      <div id="sidebar-overlay"></div>
 
-        <!-- Orador do Dia -->
-        <div id="orador-container"></div>
+      <!-- ======================================================
+         CONTEÚDO PRINCIPAL
+      ====================================================== -->
+      <main class="main-content">
+        <!-- ---- ABA: PEDIDOS ---- -->
+        <section class="section active" id="tab-pedidos" role="tabpanel">
+          <!-- Hero Card (movido para dentro da aba) -->
+          <div class="hero-card">
+            <span class="hero-emoji">🙏</span>
+            <h1 id="h-titulo">DOS AMIGOS EM ORAÇÃO</h1>
+            <div class="hero-sub" id="h-subtitulo">PAZ SEJA CONVOSCO 🔥</div>
+            <div class="hero-data" id="h-data">📅 ...</div>
+            <div class="hero-lema" id="h-lema"></div>
+          </div>
 
-        <!-- Pedidos -->
-        <div class="secao-titulo">🛐 Pedidos e Agradecimentos</div>
-        <div id="pedidos-container"></div>
+          <!-- Hino do Dia -->
+          <div id="hino-container"></div>
 
-        <!-- Formulário: enviar novo pedido -->
-        <div
-          class="card"
-          style="margin-top: 16px; border: 1.5px dashed var(--borda)"
-        >
-          <div class="card-body" style="padding: 16px">
+          <!-- Orador do Dia -->
+          <div id="orador-container"></div>
+
+          <!-- Pedidos -->
+          <div class="secao-titulo">🛐 Pedidos e Agradecimentos</div>
+          <div id="pedidos-container"></div>
+
+          <!-- Formulário: enviar novo pedido -->
+          <div
+            class="card"
+            style="margin-top: 16px; border: 1.5px dashed var(--borda)"
+          >
+            <div class="card-body" style="padding: 16px">
+              <div
+                style="
+                  font-size: 0.85rem;
+                  font-weight: 700;
+                  color: var(--roxo-dark);
+                  margin-bottom: 12px;
+                "
+              >
+                ✍️ Enviar um Pedido de Oração
+              </div>
+              <div class="form-group" style="margin-bottom: 10px">
+                <input
+                  class="form-input"
+                  id="np-de"
+                  type="text"
+                  placeholder="Seu nome (opcional)"
+                  autocomplete="name"
+                />
+              </div>
+              <div class="form-group" style="margin-bottom: 10px">
+                <input
+                  class="form-input"
+                  id="np-nome"
+                  type="text"
+                  placeholder="Nome de quem precisa de oração *"
+                />
+              </div>
+              <div class="form-group" style="margin-bottom: 10px">
+                <input
+                  class="form-input"
+                  id="np-pedido"
+                  type="text"
+                  placeholder="Motivo / Pedido principal *"
+                />
+              </div>
+              <div class="form-group" style="margin-bottom: 10px">
+                <textarea
+                  class="form-textarea"
+                  id="np-descricao"
+                  rows="3"
+                  placeholder="Descrição completa (opcional)"
+                  style="font-size: 0.85rem"
+                ></textarea>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  gap: 14px;
+                  flex-wrap: wrap;
+                  margin-bottom: 12px;
+                "
+              >
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 0.82rem;
+                    cursor: pointer;
+                  "
+                >
+                  <input type="checkbox" id="np-urgente" /> ⚡ Urgente
+                </label>
+              </div>
+              <div class="form-group" style="margin-bottom: 12px">
+                <select
+                  class="form-select"
+                  id="np-grupo"
+                  style="font-size: 0.85rem"
+                >
+                  <option value="">💬 Grupo de origem (opcional)</option>
+                </select>
+              </div>
+              <button
+                class="btn-primary btn-success"
+                id="btn-enviar-pedido"
+                style="font-size: 0.88rem"
+              >
+                🙏 Enviar Pedido
+              </button>
+              <div
+                id="np-feedback"
+                style="
+                  display: none;
+                  margin-top: 10px;
+                  font-size: 0.82rem;
+                  padding: 8px 12px;
+                  border-radius: 8px;
+                "
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---- ABA: MOTIVOS GERAIS ---- -->
+        <section class="section" id="tab-motivos" role="tabpanel">
+          <div class="secao-titulo" style="margin-top: 8px">
+            🛐 Motivos Gerais de Oração
+          </div>
+          <div class="motivos-grid" id="motivos-container"></div>
+        </section>
+
+        <!-- ---- ABA: GRUPOS ---- -->
+        <section class="section" id="tab-grupos" role="tabpanel">
+          <div class="secao-titulo" style="margin-top: 8px">
+            💬 Grupos de WhatsApp
+          </div>
+          <div id="grupos-container">
+            <div class="spinner"></div>
+          </div>
+        </section>
+
+        <!-- ---- ABA: LISTA ---- -->
+        <section class="section" id="tab-lista" role="tabpanel">
+          <div class="secao-titulo" style="margin-top: 8px">
+            👥 Lista de Intercedidos
+          </div>
+          <input
+            class="lista-busca"
+            type="search"
+            id="lista-busca"
+            placeholder="🔍 Buscar nome..."
+            aria-label="Buscar na lista"
+          />
+          <div class="lista-contador" id="lista-contador"></div>
+          <div id="lista-container"></div>
+        </section>
+
+        <!-- ---- ABA: MENSAGEM WHATSAPP ---- -->
+        <section class="section" id="tab-mensagem" role="tabpanel">
+          <div class="secao-titulo" style="margin-top: 8px">
+            📲 Mensagem para WhatsApp
+          </div>
+
+          <div class="card whatsapp-card">
+            <div class="card-header">
+              <span style="font-size: 1.4rem">💬</span>
+              <div>
+                <div style="font-weight: 700; color: #075e54">
+                  Mensagem do Dia
+                </div>
+                <div style="font-size: 0.78rem; color: var(--texto-suave)">
+                  Pronta para enviar no WhatsApp
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="whatsapp-preview" id="wpp-preview"></div>
+              <button class="btn-wpp" id="btn-wpp-enviar">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+                  />
+                </svg>
+                Enviar no WhatsApp
+              </button>
+              <button class="btn-copiar" id="btn-copiar">
+                📋 Copiar Mensagem Resumida
+              </button>
+              <button
+                class="btn-copiar"
+                id="btn-copiar-completa"
+                style="background: #4a2a8a"
+              >
+                📄 Copiar Mensagem Completa
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-card mt-16">
             <div
               style="
                 font-size: 0.85rem;
-                font-weight: 700;
-                color: var(--roxo-dark);
-                margin-bottom: 12px;
+                color: var(--texto-suave);
+                text-align: center;
+                line-height: 1.6;
               "
             >
-              ✍️ Enviar um Pedido de Oração
-            </div>
-            <div class="form-group" style="margin-bottom: 10px">
-              <input
-                class="form-input"
-                id="np-de"
-                type="text"
-                placeholder="Seu nome (opcional)"
-                autocomplete="name"
-              />
-            </div>
-            <div class="form-group" style="margin-bottom: 10px">
-              <input
-                class="form-input"
-                id="np-nome"
-                type="text"
-                placeholder="Nome de quem precisa de oração *"
-              />
-            </div>
-            <div class="form-group" style="margin-bottom: 10px">
-              <input
-                class="form-input"
-                id="np-pedido"
-                type="text"
-                placeholder="Motivo / Pedido principal *"
-              />
-            </div>
-            <div class="form-group" style="margin-bottom: 10px">
-              <textarea
-                class="form-textarea"
-                id="np-descricao"
-                rows="3"
-                placeholder="Descrição completa (opcional)"
-                style="font-size: 0.85rem"
-              ></textarea>
-            </div>
-            <div
-              style="
-                display: flex;
-                gap: 14px;
-                flex-wrap: wrap;
-                margin-bottom: 12px;
-              "
-            >
-              <label
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 6px;
-                  font-size: 0.82rem;
-                  cursor: pointer;
-                "
-              >
-                <input type="checkbox" id="np-urgente" /> ⚡ Urgente
-              </label>
-            </div>
-            <div class="form-group" style="margin-bottom: 12px">
-              <select
-                class="form-select"
-                id="np-grupo"
-                style="font-size: 0.85rem"
-              >
-                <option value="">💬 Grupo de origem (opcional)</option>
-              </select>
-            </div>
-            <button
-              class="btn-primary btn-success"
-              id="btn-enviar-pedido"
-              style="font-size: 0.88rem"
-            >
-              🙏 Enviar Pedido
-            </button>
-            <div
-              id="np-feedback"
-              style="
-                display: none;
-                margin-top: 10px;
-                font-size: 0.82rem;
-                padding: 8px 12px;
-                border-radius: 8px;
-              "
-            ></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ---- ABA: MOTIVOS GERAIS ---- -->
-      <section class="section" id="tab-motivos" role="tabpanel">
-        <div class="secao-titulo" style="margin-top: 8px">
-          🛐 Motivos Gerais de Oração
-        </div>
-        <div class="motivos-grid" id="motivos-container"></div>
-      </section>
-
-      <!-- ---- ABA: GRUPOS ---- -->
-      <section class="section" id="tab-grupos" role="tabpanel">
-        <div class="secao-titulo" style="margin-top: 8px">
-          💬 Grupos de WhatsApp
-        </div>
-        <div id="grupos-container">
-          <div class="spinner"></div>
-        </div>
-      </section>
-
-      <!-- ---- ABA: LISTA ---- -->
-      <section class="section" id="tab-lista" role="tabpanel">
-        <div class="secao-titulo" style="margin-top: 8px">
-          👥 Lista de Intercedidos
-        </div>
-        <input
-          class="lista-busca"
-          type="search"
-          id="lista-busca"
-          placeholder="🔍 Buscar nome..."
-          aria-label="Buscar na lista"
-        />
-        <div class="lista-contador" id="lista-contador"></div>
-        <div id="lista-container"></div>
-      </section>
-
-      <!-- ---- ABA: MENSAGEM WHATSAPP ---- -->
-      <section class="section" id="tab-mensagem" role="tabpanel">
-        <div class="secao-titulo" style="margin-top: 8px">
-          📲 Mensagem para WhatsApp
-        </div>
-
-        <div class="card whatsapp-card">
-          <div class="card-header">
-            <span style="font-size: 1.4rem">💬</span>
-            <div>
-              <div style="font-weight: 700; color: #075e54">
-                Mensagem do Dia
-              </div>
-              <div style="font-size: 0.78rem; color: var(--texto-suave)">
-                Pronta para enviar no WhatsApp
-              </div>
+              🔗 <strong>Link do site:</strong><br />
+              <a
+                id="link-site-display"
+                href="#"
+                target="_blank"
+                style="color: var(--roxo); word-break: break-all"
+              ></a>
+              <br /><br />
+              <button class="btn-copiar" id="btn-copiar-link">
+                🔗 Copiar Link do Site
+              </button>
             </div>
           </div>
-          <div class="card-body">
-            <div class="whatsapp-preview" id="wpp-preview"></div>
-            <button class="btn-wpp" id="btn-wpp-enviar">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-                />
-              </svg>
-              Enviar no WhatsApp
-            </button>
-            <button class="btn-copiar" id="btn-copiar">
-              📋 Copiar Mensagem Resumida
-            </button>
-            <button
-              class="btn-copiar"
-              id="btn-copiar-completa"
-              style="background: #4a2a8a"
-            >
-              📄 Copiar Mensagem Completa
-            </button>
-          </div>
-        </div>
+        </section>
 
-        <div class="admin-card mt-16">
-          <div
+        <!-- Rodapé -->
+        <div class="rodape-hero">
+          <div style="font-size: 1.5rem">🌹</div>
+          <strong id="rodape-texto">Deus te abençoe</strong>
+          <p
+            id="rodape-versic"
             style="
-              font-size: 0.85rem;
-              color: var(--texto-suave);
-              text-align: center;
-              line-height: 1.6;
+              font-size: 0.78rem;
+              opacity: 0.8;
+              margin-top: 10px;
+              font-style: italic;
             "
-          >
-            🔗 <strong>Link do site:</strong><br />
-            <a
-              id="link-site-display"
-              href="#"
-              target="_blank"
-              style="color: var(--roxo); word-break: break-all"
-            ></a>
-            <br /><br />
-            <button class="btn-copiar" id="btn-copiar-link">
-              🔗 Copiar Link do Site
-            </button>
-          </div>
+          ></p>
         </div>
-      </section>
-
-      <!-- Rodapé -->
-      <div class="rodape-hero">
-        <div style="font-size: 1.5rem">🌹</div>
-        <strong id="rodape-texto">Deus te abençoe</strong>
-        <p
-          id="rodape-versic"
-          style="
-            font-size: 0.78rem;
-            opacity: 0.8;
-            margin-top: 10px;
-            font-style: italic;
-          "
-        ></p>
-      </div>
-    </main>
-
-    <!-- ======================================================
-       FAB — BOTÃO ADMIN
-  ====================================================== -->
-    <a
-      href="admin.html"
-      style="
-        position: fixed;
-        bottom: 80px;
-        right: 20px;
-        background: var(--roxo-dark);
-        color: #fff;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.3rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        text-decoration: none;
-        z-index: 200;
-      "
-      title="Administração"
-      aria-label="Ir para administração"
-      >⚙️</a
-    >
+      </main>
+    </div>
+    <!-- /#app-body -->
 
     <!-- Toast -->
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -379,5 +430,60 @@
     <script src="data.js"></script>
     <script src="db.js"></script>
     <script src="app.js"></script>
+
+    <script>
+      (function () {
+        // 1. Tema claro/escuro
+        var saved = localStorage.getItem("theme");
+        if (saved === "dark") document.body.classList.add("dark");
+        var btnTheme = document.getElementById("btn-theme");
+        function updateThemeIcon() {
+          var icon = btnTheme && btnTheme.querySelector("i");
+          if (icon)
+            icon.className = document.body.classList.contains("dark")
+              ? "fa-solid fa-sun"
+              : "fa-solid fa-moon";
+        }
+        if (btnTheme) {
+          updateThemeIcon();
+          btnTheme.addEventListener("click", function () {
+            document.body.classList.toggle("dark");
+            localStorage.setItem(
+              "theme",
+              document.body.classList.contains("dark") ? "dark" : "light",
+            );
+            updateThemeIcon();
+          });
+        }
+
+        // 2. Sidebar mobile toggle
+        var btnHamburger = document.getElementById("btn-hamburger");
+        var overlay = document.getElementById("sidebar-overlay");
+        function toggleSidebar() {
+          document.body.classList.toggle("sidebar-open");
+        }
+        if (btnHamburger) btnHamburger.addEventListener("click", toggleSidebar);
+        if (overlay) overlay.addEventListener("click", toggleSidebar);
+
+        // 3. Fechar sidebar no mobile ao clicar em item
+        document.querySelectorAll(".sidebar-item").forEach(function (item) {
+          item.addEventListener("click", function () {
+            document.body.classList.remove("sidebar-open");
+          });
+        });
+
+        // 4. Sync visual: todos os .tab-btn com mesmo data-tab ficam ativos juntos
+        document.querySelectorAll(".tab-btn").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var tab = this.dataset.tab;
+            document.querySelectorAll(".tab-btn").forEach(function (b) {
+              var isActive = b.dataset.tab === tab;
+              b.classList.toggle("active", isActive);
+              b.setAttribute("aria-selected", isActive ? "true" : "false");
+            });
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
