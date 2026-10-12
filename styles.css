@@ -243,6 +243,24 @@ a:hover {
   color: var(--texto-suave);
   margin-bottom: 10px;
 }
+.hino-ref-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--roxo);
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.hino-ref-link:hover {
+  color: var(--roxo-dark);
+  text-decoration: underline;
+}
+body.dark .hino-ref-link {
+  color: var(--roxo-light);
+}
+body.dark .hino-ref-link:hover {
+  color: #c8a8f0;
+}
 .btn-youtube {
   display: inline-flex;
   align-items: center;
@@ -1124,7 +1142,9 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 180px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 .topbar-center {
   display: flex;
@@ -1137,7 +1157,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 180px;
+  flex-shrink: 0;
   justify-content: flex-end;
 }
 
@@ -1577,4 +1597,450 @@ body.dark .tag-milagre {
 /* Suprime o hero global antigo — o hero agora é .hero-card dentro da aba */
 .hero {
   display: none;
+}
+
+/* ============================================================
+   BÍBLIA — leitura de capítulo
+   ============================================================ */
+#biblia-texto-container {
+  padding: 0 0 24px;
+}
+
+.biblia-cap-titulo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--roxo-dark);
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f0ebff, #e8e0ff);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--roxo);
+}
+
+.biblia-verso {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1.75;
+  font-size: 0.9rem;
+  color: var(--texto);
+  transition: background 0.15s;
+}
+.biblia-verso:hover {
+  background: rgba(108, 63, 197, 0.05);
+}
+
+.biblia-num {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--roxo-light);
+  min-width: 20px;
+  text-align: right;
+  flex-shrink: 0;
+  padding-top: 3px;
+  user-select: none;
+}
+
+/* Dark mode */
+body.dark .biblia-cap-titulo {
+  background: linear-gradient(135deg, #2a1f4a, #231a3e);
+  color: #b48ef0;
+}
+body.dark .biblia-verso {
+  color: var(--texto);
+}
+body.dark .biblia-verso:hover {
+  background: rgba(180, 142, 240, 0.08);
+}
+body.dark .biblia-num {
+  color: #9b6fe0;
+}
+
+/* ============================================================
+   LINK DE REFERÊNCIA BÍBLICA — nos cards de motivo (site)
+   ============================================================ */
+.biblia-ref-link {
+  background: none;
+  border: none;
+  color: var(--roxo);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline dotted;
+  display: inline;
+}
+.biblia-ref-link:hover {
+  color: var(--roxo-dark);
+  text-decoration: underline;
+}
+
+/* ============================================================
+   LINK DE REFERÊNCIA BÍBLICA — no admin
+   ============================================================ */
+.biblia-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--roxo);
+  margin-top: 6px;
+  padding: 4px 10px;
+  border: 1.5px solid var(--roxo-light);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.biblia-admin-link:hover {
+  background: rgba(108, 63, 197, 0.08);
+  text-decoration: none;
+  color: var(--roxo-dark);
+}
+
+/* ============================================================
+   BÍBLIA — grade de livros
+   ============================================================ */
+#biblia-livros-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.biblia-testamento-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--roxo-light);
+  padding: 18px 4px 6px;
+}
+.biblia-testamento-label:first-child {
+  padding-top: 4px;
+}
+
+/* Wrap the buttons in a sub-grid per testament */
+#biblia-livros-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.biblia-livros-subgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.biblia-livro-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--borda);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+  text-align: left;
+  width: 100%;
+}
+.biblia-livro-btn:hover,
+.biblia-livro-btn:focus-visible {
+  border-color: var(--roxo-light);
+  background: linear-gradient(135deg, #f8f4ff, #f0ebff);
+  box-shadow: var(--sombra);
+  outline: none;
+}
+.biblia-livro-btn:active {
+  transform: scale(0.97);
+}
+.biblia-livro-nome {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--roxo-dark);
+  line-height: 1.3;
+}
+.biblia-livro-caps {
+  font-size: 0.68rem;
+  color: var(--texto-suave);
+  font-weight: 500;
+}
+
+/* dark mode - livro btn */
+body.dark .biblia-livro-btn {
+  background: #1e1535;
+  border-color: #3a2a5e;
+}
+body.dark .biblia-livro-btn:hover,
+body.dark .biblia-livro-btn:focus-visible {
+  background: #2a1f4a;
+  border-color: var(--roxo-light);
+}
+body.dark .biblia-livro-nome {
+  color: #c8a8f0;
+}
+body.dark .biblia-testamento-label {
+  color: #9b6fe0;
+}
+
+/* ============================================================
+   BÍBLIA — modal de capítulos (slide up)
+   ============================================================ */
+.biblia-cap-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.biblia-cap-overlay.aberto {
+  opacity: 1;
+  pointer-events: auto;
+}
+.biblia-cap-modal {
+  width: 100%;
+  max-height: 70vh;
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  padding: 0 0 24px;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  box-shadow: 0 -4px 32px rgba(108, 63, 197, 0.2);
+}
+.biblia-cap-overlay.aberto .biblia-cap-modal {
+  transform: translateY(0);
+}
+
+.biblia-cap-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1.5px solid var(--borda);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  z-index: 1;
+}
+.biblia-cap-modal-titulo {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--roxo-dark);
+}
+.biblia-cap-fechar {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--texto-suave);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.biblia-cap-fechar:hover {
+  background: var(--borda);
+  color: var(--roxo-dark);
+}
+
+.biblia-cap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 8px;
+  padding: 16px;
+}
+.biblia-cap-btn {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1.5px solid var(--borda);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--roxo-dark);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.1s;
+}
+.biblia-cap-btn:hover,
+.biblia-cap-btn:focus-visible {
+  background: var(--roxo);
+  color: #fff;
+  border-color: var(--roxo);
+  outline: none;
+}
+.biblia-cap-btn:active {
+  transform: scale(0.92);
+}
+
+/* dark mode - modal */
+body.dark .biblia-cap-modal {
+  background: #1a1230;
+}
+body.dark .biblia-cap-modal-header {
+  background: #1a1230;
+  border-color: #3a2a5e;
+}
+body.dark .biblia-cap-modal-titulo {
+  color: #c8a8f0;
+}
+body.dark .biblia-cap-btn {
+  background: #231a3e;
+  border-color: #3a2a5e;
+  color: #c8a8f0;
+}
+body.dark .biblia-cap-btn:hover {
+  background: var(--roxo);
+  color: #fff;
+  border-color: var(--roxo);
+}
+
+/* ============================================================
+   BÍBLIA — breadcrumb e voltar
+   ============================================================ */
+.biblia-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+}
+.biblia-back-btn {
+  background: none;
+  border: 1.5px solid var(--borda);
+  color: var(--roxo);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.biblia-back-btn:hover {
+  background: rgba(108, 63, 197, 0.08);
+  border-color: var(--roxo-light);
+}
+.biblia-breadcrumb-sep {
+  color: var(--texto-suave);
+}
+.biblia-breadcrumb-livro {
+  font-weight: 700;
+  color: var(--roxo-dark);
+}
+.biblia-breadcrumb-cap {
+  color: var(--texto-suave);
+}
+
+.biblia-cap-header {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--roxo-dark);
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f0ebff, #e8e0ff);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--roxo);
+}
+
+body.dark .biblia-back-btn {
+  border-color: #3a2a5e;
+  color: #9b6fe0;
+}
+body.dark .biblia-back-btn:hover {
+  background: rgba(155, 111, 224, 0.1);
+}
+body.dark .biblia-breadcrumb-livro {
+  color: #c8a8f0;
+}
+body.dark .biblia-cap-header {
+  background: linear-gradient(135deg, #2a1f4a, #231a3e);
+  color: #b48ef0;
+}
+
+/* ============================================================
+   BÍBLIA — barra de navegação anterior/próximo
+   ============================================================ */
+.biblia-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: center;
+}
+.biblia-nav-btn {
+  flex: 1;
+  max-width: 220px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.biblia-nav-counter {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--roxo);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
+}
+@media (max-width: 640px) {
+  .biblia-nav-label {
+    display: none;
+  }
+  .biblia-nav-btn {
+    max-width: 52px;
+    min-width: 44px;
+    padding: 10px;
+  }
+}
+body.dark .biblia-nav-counter {
+  color: #9b6fe0;
+}
+
+/* ============================================================
+   BÍBLIA — grade inline de capítulos (abaixo do texto)
+   ============================================================ */
+.biblia-cap-inline-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1.5px solid var(--borda);
+}
+.biblia-cap-inline-titulo {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+  margin-bottom: 12px;
+}
+.biblia-cap-btn.ativo {
+  background: var(--roxo);
+  color: #fff;
+  border-color: var(--roxo);
+}
+body.dark .biblia-cap-inline-section {
+  border-top-color: #3a2a5e;
+}
+body.dark .biblia-cap-inline-titulo {
+  color: #9b6fe0;
 }

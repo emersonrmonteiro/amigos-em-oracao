@@ -137,8 +137,17 @@
             role="tab"
             aria-selected="false"
           >
-            <i class="fa-brands fa-whatsapp"></i>
-            <span>Mensagem para WhatsApp</span>
+            <i class="fa-solid fa-share-nodes"></i>
+            <span>Compartilhar</span>
+          </button>
+          <button
+            class="tab-btn sidebar-item"
+            data-tab="biblia"
+            role="tab"
+            aria-selected="false"
+          >
+            <i class="fa-solid fa-book-bible"></i>
+            <span>Bíblia</span>
           </button>
         </nav>
       </aside>
@@ -308,7 +317,7 @@
         <!-- ---- ABA: MENSAGEM WHATSAPP ---- -->
         <section class="section" id="tab-mensagem" role="tabpanel">
           <div class="secao-titulo" style="margin-top: 8px">
-            📲 Mensagem para WhatsApp
+            📲 Compartilhar
           </div>
 
           <div class="card whatsapp-card">
@@ -375,6 +384,74 @@
           </div>
         </section>
 
+        <!-- ---- ABA: BÍBLIA ---- -->
+        <section class="section" id="tab-biblia" role="tabpanel">
+          <div class="secao-titulo" style="margin-top: 8px">
+            📖 Bíblia — Almeida Revista e Atualizada
+          </div>
+
+          <!-- Grade de livros -->
+          <div id="biblia-livros-grid"></div>
+
+          <!-- Texto do capítulo -->
+          <div id="biblia-texto-container" style="display: none">
+            <div id="biblia-breadcrumb" class="biblia-breadcrumb"></div>
+            <div id="biblia-texto-versos"></div>
+            <div class="biblia-nav-row">
+              <button
+                class="btn-copiar biblia-nav-btn"
+                id="biblia-btn-anterior"
+              >
+                <span class="biblia-nav-arrow">←</span>
+                <span class="biblia-nav-label">Capítulo Anterior</span>
+              </button>
+              <div class="biblia-nav-counter" id="biblia-nav-counter">
+                — / —
+              </div>
+              <button class="btn-copiar biblia-nav-btn" id="biblia-btn-proximo">
+                <span class="biblia-nav-label">Próximo Capítulo</span>
+                <span class="biblia-nav-arrow">→</span>
+              </button>
+            </div>
+            <div class="biblia-cap-inline-section">
+              <div class="biblia-cap-inline-titulo">
+                Capítulos de <span id="biblia-inline-livro-nome"></span>
+              </div>
+              <div id="biblia-cap-inline-grid" class="biblia-cap-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Modal de capítulos (fora da seção para ficar sobre tudo) -->
+        <div
+          id="biblia-cap-overlay"
+          class="biblia-cap-overlay"
+          aria-hidden="true"
+        >
+          <div
+            id="biblia-cap-modal"
+            class="biblia-cap-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="biblia-cap-modal-titulo"
+          >
+            <div class="biblia-cap-modal-header">
+              <span
+                id="biblia-cap-modal-titulo"
+                class="biblia-cap-modal-titulo"
+              ></span>
+              <button
+                id="biblia-cap-fechar"
+                class="biblia-cap-fechar"
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+            </div>
+            <div id="biblia-cap-grid" class="biblia-cap-grid"></div>
+          </div>
+        </div>
+
         <!-- Rodapé -->
         <div class="rodape-hero">
           <div style="font-size: 1.5rem">🌹</div>
@@ -406,6 +483,7 @@
     ></script>
     <script src="data.js"></script>
     <script src="db.js"></script>
+    <script src="biblia.js"></script>
     <script src="app.js"></script>
 
     <script>
