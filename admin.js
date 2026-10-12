@@ -118,6 +118,319 @@
   }
 
   // ============================================================
+  // MAPA DE ABREVIAÇÕES — links de referência bíblica no admin
+  // ============================================================
+  var ABREV_MAP = {
+    gn: "gn",
+    gen: "gn",
+    genesis: "gn",
+    gênesis: "gn",
+    ex: "ex",
+    exo: "ex",
+    exodo: "ex",
+    êxodo: "ex",
+    lv: "lv",
+    lev: "lv",
+    levitico: "lv",
+    levítico: "lv",
+    nm: "nm",
+    num: "nm",
+    numeros: "nm",
+    números: "nm",
+    dt: "dt",
+    deu: "dt",
+    deuteronomio: "dt",
+    deuteronômio: "dt",
+    js: "js",
+    jos: "js",
+    josue: "js",
+    josué: "js",
+    jz: "jz",
+    jui: "jz",
+    juizes: "jz",
+    juízes: "jz",
+    rt: "rt",
+    rute: "rt",
+    "1sm": "1sm",
+    "1sam": "1sm",
+    "i sm": "1sm",
+    "i sam": "1sm",
+    "1 samuel": "1sm",
+    "2sm": "2sm",
+    "2sam": "2sm",
+    "ii sm": "2sm",
+    "ii sam": "2sm",
+    "2 samuel": "2sm",
+    "1rs": "1rs",
+    "1rei": "1rs",
+    "i rs": "1rs",
+    "1 reis": "1rs",
+    "2rs": "2rs",
+    "2rei": "2rs",
+    "ii rs": "2rs",
+    "2 reis": "2rs",
+    "1cr": "1cr",
+    "i cr": "1cr",
+    "1 cronicas": "1cr",
+    "1 crônicas": "1cr",
+    "2cr": "2cr",
+    "ii cr": "2cr",
+    "2 cronicas": "2cr",
+    "2 crônicas": "2cr",
+    ed: "ed",
+    esd: "ed",
+    esdras: "ed",
+    ne: "ne",
+    nee: "ne",
+    neemias: "ne",
+    et: "et",
+    est: "et",
+    ester: "et",
+    jo: "jo",
+    job: "jo",
+    jó: "jo",
+    sl: "sl",
+    sal: "sl",
+    salmo: "sl",
+    salmos: "sl",
+    ps: "sl",
+    psa: "sl",
+    pv: "pv",
+    pro: "pv",
+    proverbios: "pv",
+    provérbios: "pv",
+    ec: "ec",
+    ecl: "ec",
+    eclesiastes: "ec",
+    ct: "ct",
+    cnt: "ct",
+    canticos: "ct",
+    cânticos: "ct",
+    is: "is",
+    isa: "is",
+    isaias: "is",
+    isaías: "is",
+    jr: "jr",
+    jer: "jr",
+    jeremias: "jr",
+    lm: "lm",
+    lam: "lm",
+    lamentacoes: "lm",
+    lamentações: "lm",
+    ez: "ez",
+    eze: "ez",
+    ezequiel: "ez",
+    dn: "dn",
+    dan: "dn",
+    daniel: "dn",
+    os: "os",
+    ose: "os",
+    oseias: "os",
+    oséias: "os",
+    jl: "jl",
+    joel: "jl",
+    am: "am",
+    amos: "am",
+    amós: "am",
+    ob: "ob",
+    oba: "ob",
+    obadias: "ob",
+    jn: "jn",
+    jon: "jn",
+    jonas: "jn",
+    mq: "mq",
+    mic: "mq",
+    miqueias: "mq",
+    na: "na",
+    nao: "na",
+    naum: "na",
+    hc: "hc",
+    hab: "hc",
+    habacuque: "hc",
+    sf: "sf",
+    sof: "sf",
+    sofonias: "sf",
+    ag: "ag",
+    age: "ag",
+    ageu: "ag",
+    zc: "zc",
+    zac: "zc",
+    zacarias: "zc",
+    ml: "ml",
+    mal: "ml",
+    malaquias: "ml",
+    mt: "mt",
+    mat: "mt",
+    mateus: "mt",
+    mc: "mc",
+    mar: "mc",
+    marcos: "mc",
+    lc: "lc",
+    luc: "lc",
+    lucas: "lc",
+    jo_nt: "jo_nt",
+    joão: "jo_nt",
+    joao: "jo_nt",
+    joh: "jo_nt",
+    at: "at",
+    ato: "at",
+    atos: "at",
+    rm: "rm",
+    rom: "rm",
+    romanos: "rm",
+    "1co": "1co",
+    "1cor": "1co",
+    "i cor": "1co",
+    "i co": "1co",
+    "1 corintios": "1co",
+    "1 coríntios": "1co",
+    "2co": "2co",
+    "2cor": "2co",
+    "ii cor": "2co",
+    "ii co": "2co",
+    "2 corintios": "2co",
+    "2 coríntios": "2co",
+    gl: "gl",
+    gal: "gl",
+    galatas: "gl",
+    gálatas: "gl",
+    ef: "ef",
+    efe: "ef",
+    efesios: "ef",
+    efésios: "ef",
+    fp: "fp",
+    fil: "fp",
+    filipenses: "fp",
+    cl: "cl",
+    col: "cl",
+    colossenses: "cl",
+    "1ts": "1ts",
+    "1tes": "1ts",
+    "i ts": "1ts",
+    "1 tessalonicenses": "1ts",
+    "2ts": "2ts",
+    "2tes": "2ts",
+    "ii ts": "2ts",
+    "2 tessalonicenses": "2ts",
+    "1tm": "1tm",
+    "1ti": "1tm",
+    "i tm": "1tm",
+    "1 timoteo": "1tm",
+    "1 timóteo": "1tm",
+    "2tm": "2tm",
+    "2ti": "2tm",
+    "ii tm": "2tm",
+    "2 timoteo": "2tm",
+    "2 timóteo": "2tm",
+    tt: "tt",
+    tit: "tt",
+    tito: "tt",
+    fm: "fm",
+    file: "fm",
+    filemon: "fm",
+    filêmon: "fm",
+    hb: "hb",
+    heb: "hb",
+    hebreus: "hb",
+    tg: "tg",
+    tia: "tg",
+    tiago: "tg",
+    "1pe": "1pe",
+    "1ped": "1pe",
+    "i pe": "1pe",
+    "1 pedro": "1pe",
+    "2pe": "2pe",
+    "2ped": "2pe",
+    "ii pe": "2pe",
+    "2 pedro": "2pe",
+    "1jo": "1jo",
+    "1joo": "1jo",
+    "i jo": "1jo",
+    "1 joao": "1jo",
+    "1 joão": "1jo",
+    "2jo": "2jo",
+    "ii jo": "2jo",
+    "2 joao": "2jo",
+    "2 joão": "2jo",
+    "3jo": "3jo",
+    "iii jo": "3jo",
+    "3 joao": "3jo",
+    "3 joão": "3jo",
+    jd: "jd",
+    jud: "jd",
+    judas: "jd",
+    ap: "ap",
+    apo: "ap",
+    apocalipse: "ap",
+    rev: "ap",
+  };
+
+  function normalizarStr(s) {
+    return s
+      .toLowerCase()
+      .replace(/[áàãâä]/g, "a")
+      .replace(/[éèêë]/g, "e")
+      .replace(/[íìîï]/g, "i")
+      .replace(/[óòõôö]/g, "o")
+      .replace(/[úùûü]/g, "u")
+      .replace(/ç/g, "c")
+      .trim();
+  }
+
+  function parsearRefSimples(texto) {
+    if (!texto) return null;
+    var s = texto
+      .trim()
+      .replace(/^III\s/i, "3 ")
+      .replace(/^II\s/i, "2 ")
+      .replace(/^I\s/i, "1 ");
+    var m = s.match(/^(.*?)\s+(\d+)(?:\s*:\s*\d+)?$/);
+    if (!m) return null;
+    var livroRaw = normalizarStr(m[1]);
+    var cap = parseInt(m[2]);
+    var livroId = ABREV_MAP[livroRaw];
+    if (!livroId) livroId = ABREV_MAP[livroRaw.replace(/\s+/g, "")];
+    if (!livroId || isNaN(cap) || cap < 1) return null;
+    return { livroId: livroId, cap: cap };
+  }
+
+  function configurarLinkBiblia(inputId, linkId) {
+    var input = document.getElementById(inputId);
+    var link = document.getElementById(linkId);
+    if (!input || !link) return;
+
+    function atualizarLink() {
+      var val = input.value.trim();
+      if (!val) {
+        link.style.display = "none";
+        return;
+      }
+      var nav = parsearRefSimples(val);
+      if (nav) {
+        link.style.display = "inline-flex";
+        link.dataset.livro = nav.livroId;
+        link.dataset.cap = nav.cap;
+      } else {
+        link.style.display = "none";
+      }
+    }
+
+    input.addEventListener("input", atualizarLink);
+    input.addEventListener("change", atualizarLink);
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      var livroId = this.dataset.livro;
+      var cap = this.dataset.cap;
+      if (!livroId || !cap) return;
+      sessionStorage.setItem(
+        "biblia_nav",
+        JSON.stringify({ livroId: livroId, cap: parseInt(cap) }),
+      );
+      window.open("index.html", "_blank");
+    });
+  }
+
+  // ============================================================
   // INICIALIZAR PAINEL
   // ============================================================
   function inicializar() {
@@ -129,11 +442,14 @@
     renderListaAdmin();
     preencherConfig();
     iniciarAbas();
+    atualizarBadgeLixeira();
     // Exibe o contador de visualizações
     const el = document.getElementById("views-count");
     if (el && dados.config && dados.config.visualizacoes !== undefined) {
       el.textContent = dados.config.visualizacoes.toLocaleString("pt-BR");
     }
+    configurarLinkBiblia("h-referencia", "h-referencia-link");
+    configurarLinkBiblia("mm-referencia", "mm-referencia-link");
   }
 
   // ============================================================
@@ -153,8 +469,41 @@
           .getElementById("atab-" + tab.dataset.tab)
           .classList.add("active");
         window.scrollTo({ top: 0, behavior: "smooth" });
+        atualizarScrollFabAdmin(tab.dataset.tab);
       });
     });
+  }
+
+  // ============================================================
+  // BOTÕES FLUTUANTES DE SCROLL — aba pedidos (admin)
+  // ============================================================
+  (function iniciarScrollFabAdmin() {
+    const fab = document.getElementById("admin-scroll-fab");
+    const btnTopo = document.getElementById("admin-scroll-top-btn");
+    const btnFim = document.getElementById("admin-scroll-bottom-btn");
+    if (!fab || !btnTopo || !btnFim) return;
+
+    // A aba pedidos começa inativa no admin (a ativa inicial é "geral")
+    fab.classList.remove("visible");
+
+    btnTopo.addEventListener("click", () =>
+      window.scrollTo({ top: 0, behavior: "smooth" }),
+    );
+    btnFim.addEventListener("click", () =>
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }),
+    );
+  })();
+
+  function atualizarScrollFabAdmin(abaAtiva) {
+    const fab = document.getElementById("admin-scroll-fab");
+    if (!fab) return;
+    if (abaAtiva === "pedidos") {
+      fab.classList.add("visible");
+      fab.setAttribute("aria-hidden", "false");
+    } else {
+      fab.classList.remove("visible");
+      fab.setAttribute("aria-hidden", "true");
+    }
   }
 
   // ============================================================
@@ -274,6 +623,7 @@
             ${badges}
             <div class="admin-card-nome">${p.nome || "(sem nome)"}</div>
             <div class="admin-card-sub">${p.de ? "De: " + p.de : ""} ${p.pedido ? "| " + p.pedido.substring(0, 55) + (p.pedido.length > 55 ? "..." : "") : ""}</div>
+            ${p._criadoEm ? `<div style="font-size:0.7rem;color:var(--texto-suave);margin-top:2px">📅 Criado em: ${p._criadoEm}</div>` : ""}
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
             <button class="btn-sm" style="background:#e8f0ff;color:var(--roxo)" data-action="editar"  data-idx="${idx}">✏️</button>
@@ -318,11 +668,116 @@
   }
 
   async function excluirPedido(realIdx) {
-    if (!confirm("Excluir este pedido?")) return;
-    dados.pedidos.splice(realIdx, 1);
+    if (!confirm("Mover este pedido para a lixeira?")) return;
+    const pedidoRemovido = dados.pedidos.splice(realIdx, 1)[0];
+    // Adiciona à lixeira com timestamp
+    if (!dados.pedidosLixeira) dados.pedidosLixeira = [];
+    pedidoRemovido._excluidoEm = new Date().toLocaleString("pt-BR");
+    dados.pedidosLixeira.push(pedidoRemovido);
+    atualizarBadgeLixeira();
     renderPedidosAdmin();
-    await salvar("🗑️ Pedido removido.");
+    await salvar("🗑️ Pedido movido para a lixeira.");
   }
+
+  // ============================================================
+  // LIXEIRA DE PEDIDOS
+  // ============================================================
+  function atualizarBadgeLixeira() {
+    const qtd = (dados.pedidosLixeira || []).length;
+    const badge = document.getElementById("lixeira-badge");
+    if (!badge) return;
+    if (qtd > 0) {
+      badge.textContent = qtd;
+      badge.style.display = "inline";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  function renderLixeira() {
+    const list = document.getElementById("lixeira-list");
+    const vazia = document.getElementById("lixeira-vazia");
+    if (!list) return;
+    list.innerHTML = "";
+    const itens = dados.pedidosLixeira || [];
+    if (itens.length === 0) {
+      vazia.style.display = "block";
+      return;
+    }
+    vazia.style.display = "none";
+    itens.forEach((p, idx) => {
+      let badges = "";
+      if (p.milagre)
+        badges += `<span class="badge badge-milagre">✨ Milagre</span> `;
+      if (p.agradecimento)
+        badges += `<span class="badge badge-gratidao">🙌 Gratidão</span> `;
+      if (p.urgente)
+        badges += `<span class="badge badge-urgente">⚡ Urgente</span> `;
+
+      const card = document.createElement("div");
+      card.className = "admin-card";
+      card.style.cssText = "margin-bottom:10px;border-left:3px solid #c9868680";
+      card.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            ${badges}
+            <div class="admin-card-nome">${p.nome || "(sem nome)"}</div>
+            <div class="admin-card-sub">${p.de ? "De: " + p.de : ""} ${p.pedido ? "| " + p.pedido.substring(0, 55) + (p.pedido.length > 55 ? "..." : "") : ""}</div>
+            ${p._excluidoEm ? `<div style="font-size:0.7rem;color:var(--texto-suave);margin-top:3px">🕐 Excluído em: ${p._excluidoEm}</div>` : ""}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+            <button class="btn-sm" style="background:#e8f5e9;color:#2e7d32;font-size:0.75rem" data-action="restaurar" data-idx="${idx}">↩️ Restaurar</button>
+            <button class="btn-sm" style="background:#fde8e8;color:var(--vermelho);font-size:0.75rem" data-action="excluir-perm" data-idx="${idx}">🗑️ Excluir</button>
+          </div>
+        </div>`;
+      list.appendChild(card);
+    });
+
+    list.querySelectorAll("[data-action='restaurar']").forEach((btn) =>
+      btn.addEventListener("click", async () => {
+        const idx = parseInt(btn.dataset.idx);
+        const p = dados.pedidosLixeira.splice(idx, 1)[0];
+        delete p._excluidoEm;
+        if (!dados.pedidos) dados.pedidos = [];
+        dados.pedidos.push(p);
+        atualizarBadgeLixeira();
+        renderLixeira();
+        renderPedidosAdmin();
+        await salvar("↩️ Pedido restaurado!");
+      }),
+    );
+
+    list.querySelectorAll("[data-action='excluir-perm']").forEach((btn) =>
+      btn.addEventListener("click", async () => {
+        const idx = parseInt(btn.dataset.idx);
+        const p = dados.pedidosLixeira[idx];
+        if (
+          !confirm(
+            `Excluir permanentemente "${p.nome || "(sem nome)"}"? Esta ação não pode ser desfeita.`,
+          )
+        )
+          return;
+        dados.pedidosLixeira.splice(idx, 1);
+        atualizarBadgeLixeira();
+        renderLixeira();
+        await salvar("🗑️ Pedido excluído permanentemente.");
+      }),
+    );
+  }
+
+  const modalLixeira = document.getElementById("modal-lixeira");
+  document
+    .getElementById("modal-lixeira-close")
+    .addEventListener("click", () => modalLixeira.classList.remove("open"));
+  modalLixeira.addEventListener("click", (e) => {
+    if (e.target === modalLixeira) modalLixeira.classList.remove("open");
+  });
+  document
+    .getElementById("btn-lixeira-pedidos")
+    .addEventListener("click", () => {
+      renderLixeira();
+      modalLixeira.classList.add("open");
+    });
 
   async function moverPedido(realIdx, destino) {
     const item = dados.pedidos[realIdx];
@@ -460,9 +915,18 @@
         if (pedidoExistente && pedidoExistente.oracoes !== undefined) {
           pedido.oracoes = pedidoExistente.oracoes;
         }
+        // Preserva a data de criação ao editar
+        if (pedidoExistente && pedidoExistente._criadoEm) {
+          pedido._criadoEm = pedidoExistente._criadoEm;
+        }
         dados.pedidos[realIdx] = pedido;
       } else {
         if (!dados.pedidos) dados.pedidos = [];
+        pedido._criadoEm = new Date().toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
         dados.pedidos.push(pedido);
       }
 
@@ -524,6 +988,10 @@
       : "";
     document.getElementById("mm-link").value = m ? m.link || "" : "";
     document.getElementById("mm-descricao").value = m ? m.descricao || "" : "";
+    // Atualiza o link bíblico ao abrir o modal
+    var ev = new Event("input");
+    var mmRef = document.getElementById("mm-referencia");
+    if (mmRef) mmRef.dispatchEvent(ev);
     modalMotivo.classList.add("open");
   }
 

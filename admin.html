@@ -257,6 +257,14 @@
                 type="text"
                 placeholder="Ex: Sl 23:1"
               />
+              <a
+                id="h-referencia-link"
+                href="#"
+                target="_blank"
+                class="biblia-admin-link"
+                style="display: none"
+                >📖 Ver capítulo no site</a
+              >
             </div>
             <div class="form-group">
               <label class="form-label" for="h-numero">Número da Oração</label>
@@ -327,6 +335,32 @@
               </button>
               <button
                 class="btn-primary"
+                id="btn-lixeira-pedidos"
+                style="
+                  width: auto;
+                  padding: 8px 14px;
+                  font-size: 0.82rem;
+                  background: #8a6060;
+                "
+              >
+                🗑️ Lixeira
+                <span
+                  id="lixeira-badge"
+                  style="
+                    display: none;
+                    background: #fff;
+                    color: #8a6060;
+                    border-radius: 10px;
+                    padding: 1px 6px;
+                    font-size: 0.75rem;
+                    font-weight: 800;
+                    margin-left: 4px;
+                  "
+                  >0</span
+                >
+              </button>
+              <button
+                class="btn-primary"
                 id="btn-novo-pedido"
                 style="width: auto; padding: 8px 16px; font-size: 0.85rem"
               >
@@ -345,6 +379,26 @@
             para reordenar • Use ⬆️ ⬇️ para mover
           </div>
           <div id="pedidos-admin-list"></div>
+
+          <!-- Botões flutuantes de scroll (aba pedidos admin) -->
+          <div id="admin-scroll-fab" class="scroll-fab" aria-hidden="true">
+            <button
+              id="admin-scroll-top-btn"
+              class="scroll-fab-btn"
+              title="Voltar ao topo"
+              aria-label="Rolar para o topo"
+            >
+              ▲
+            </button>
+            <button
+              id="admin-scroll-bottom-btn"
+              class="scroll-fab-btn"
+              title="Ir para o final"
+              aria-label="Rolar para o final"
+            >
+              ▼
+            </button>
+          </div>
         </div>
 
         <!-- ---- ABA: MOTIVOS GERAIS ---- -->
@@ -633,6 +687,45 @@
     <!-- /admin-panel -->
 
     <!-- ======================================================
+       MODAL: LIXEIRA DE PEDIDOS
+  ====================================================== -->
+    <div class="modal-overlay" id="modal-lixeira">
+      <div class="modal" style="position: relative; max-width: 560px">
+        <button
+          class="modal-close"
+          id="modal-lixeira-close"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+        <div class="modal-titulo">🗑️ Lixeira de Pedidos</div>
+        <div
+          style="
+            font-size: 0.78rem;
+            color: var(--texto-suave);
+            margin-bottom: 14px;
+          "
+        >
+          Pedidos excluídos ficam aqui. Você pode restaurá-los ou excluí-los
+          permanentemente.
+        </div>
+        <div id="lixeira-list"></div>
+        <div
+          id="lixeira-vazia"
+          style="
+            display: none;
+            text-align: center;
+            padding: 30px 0;
+            color: var(--texto-suave);
+            font-size: 0.88rem;
+          "
+        >
+          🗂️ A lixeira está vazia.
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================
        MODAL: EDITAR PEDIDO
   ====================================================== -->
     <div class="modal-overlay" id="modal-pedido">
@@ -783,6 +876,14 @@
             type="text"
             placeholder="Ex: II Coríntios 4:8"
           />
+          <a
+            id="mm-referencia-link"
+            href="#"
+            target="_blank"
+            class="biblia-admin-link"
+            style="display: none"
+            >📖 Ver capítulo no site</a
+          >
         </div>
         <div class="form-group">
           <label class="form-label" for="mm-link">Link YouTube</label>

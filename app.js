@@ -160,11 +160,27 @@
           <div>
             <span class="hino-badge">Oração do Dia</span>
             <div class="hino-titulo" style="margin-top:4px">${h.numero} — ${h.titulo}</div>
-            <div class="hino-ref">${h.referencia}</div>
+            <div class="hino-ref" id="hino-ref-versiculo"></div>
           </div>
         </div>
         <div class="card-body">${embedHtml}${btnAbrir}</div>
       </div>`;
+
+    // Render reference as a Bible link — always a link when referencia is set
+    const refEl = document.getElementById("hino-ref-versiculo");
+    if (refEl && h.referencia) {
+      const refLink = document.createElement("a");
+      refLink.textContent = h.referencia;
+      refLink.href =
+        window.location.pathname +
+        "?biblia=" +
+        encodeURIComponent(h.referencia);
+      refLink.target = "_blank";
+      refLink.rel = "noopener";
+      refLink.className = "hino-ref-link";
+      refLink.title = "Abrir " + h.referencia + " na Bíblia";
+      refEl.appendChild(refLink);
+    }
   }
 
   // ============================================================
@@ -248,6 +264,7 @@
           ${p.pedido ? `<div class="pedido-motivo">🛐 ${p.pedido}</div>` : ""}
           ${p.descricao ? `<div class="pedido-descricao">${p.descricao}</div>` : ""}
           ${grupoHtml}
+          ${p._criadoEm ? `<div class="pedido-data">📅 ${p._criadoEm}</div>` : ""}
           <button class="btn-orar${jaOrou ? " orou" : ""}"
                   data-original-idx="${originalIdx}"
                   data-local-key="${localKey}"
@@ -430,7 +447,7 @@
       card.innerHTML = `
         ${thumbHtml}
         <div class="motivo-titulo">${m.titulo}</div>
-        ${m.referencia ? `<div class="motivo-ref">${m.referencia}</div>` : ""}
+        ${m.referencia ? `<div class="motivo-ref motivo-referencia"></div>` : ""}
         ${m.descricao ? `<div class="motivo-desc">${m.descricao}</div>` : ""}
         ${
           m.link
@@ -439,6 +456,31 @@
           Ore comigo</a>`
             : ""
         }`;
+
+      // Referência bíblica clicável
+      if (m.referencia) {
+        const refDiv = card.querySelector(".motivo-referencia");
+        if (refDiv) {
+          const parsed =
+            window.BibliaUI && window.BibliaUI.parsearReferencia(m.referencia);
+          if (parsed) {
+            const linkRef = document.createElement("a");
+            linkRef.href = "#";
+            linkRef.textContent = m.referencia;
+            linkRef.style.cssText =
+              "color:var(--roxo);text-decoration:underline;cursor:pointer;font-size:0.7rem;";
+            linkRef.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              ativarAba("biblia");
+              window.BibliaUI.navegarPara(parsed.livroId, parsed.cap);
+            });
+            refDiv.appendChild(linkRef);
+          } else {
+            refDiv.textContent = m.referencia;
+          }
+        }
+      }
       if (m.link)
         card.addEventListener("click", (e) => {
           if (!e.target.closest("a")) window.open(m.link, "_blank", "noopener");
@@ -636,25 +678,212 @@
   // ============================================================
   // ABAS
   // ============================================================
+
+  // Abas válidas do site (data-tab dos botões na sidebar)
+  const ABAS_VALIDAS = [
+    "pedidos",
+    "lista",
+    "motivos",
+    "grupos",
+    "mensagem",
+    "biblia",
+  ];
+
+  // Ativa uma aba pelo nome sem atualizar o hash (usado internamente)
+  function ativarAba(tab) {
+    document.querySelectorAll(".tab-btn").forEach((b) => {
+      const isActive = b.dataset.tab === tab;
+      b.classList.toggle("active", isActive);
+      b.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    document
+      .querySelectorAll(".section")
+      .forEach((s) => s.classList.remove("active"));
+    const secao = document.getElementById("tab-" + tab);
+    if (secao) secao.classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Lê o hash atual e retorna a aba correspondente (ex: "#lista" → "lista")
+  // Hashes da Bíblia (#biblia/gn/29) retornam "biblia"
+  function abaDoHash(hash) {
+    if (!hash || hash === "#") return null;
+    // Formato da Bíblia: #biblia/<livro>/<cap>
+    if (/^#biblia\//.test(hash)) return "biblia";
+    // Formato simples: #lista, #motivos, etc.
+    const tab = hash.replace("#", "");
+    return ABAS_VALIDAS.includes(tab) ? tab : null;
+  }
+
   function iniciarAbas() {
     document.querySelectorAll(".tab-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
+        const tab = btn.dataset.tab;
+        ativarAba(tab);
+        // Atualiza o hash — para a Bíblia mantém o hash do livro/capítulo se já estiver lá
+        if (tab === "biblia") {
+          // O BibliaUI cuida do hash da bíblia; só garante que haja pelo menos #biblia
+          if (!window.location.hash.startsWith("#biblia/")) {
+            history.pushState(null, "", "#biblia");
+          }
+        } else {
+          history.pushState(null, "", "#" + tab);
+        }
+      });
+    });
+
+    if (window.BibliaUI) {
+      window.BibliaUI.init();
+    }
+
+    // ── Restaurar aba pelo hash da URL ──────────────────────────────────────
+    const hashAtual = window.location.hash;
+    const tabDoHash = abaDoHash(hashAtual);
+
+    if (tabDoHash) {
+      // Ativa a aba correspondente sem reescrever o hash
+      document.querySelectorAll(".tab-btn").forEach((b) => {
+        const isActive = b.dataset.tab === tabDoHash;
+        b.classList.toggle("active", isActive);
+        b.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+      document
+        .querySelectorAll(".section")
+        .forEach((s) => s.classList.remove("active"));
+      const secao = document.getElementById("tab-" + tabDoHash);
+      if (secao) secao.classList.add("active");
+      // Para a Bíblia, o BibliaUI.init() já cuida de navegar para o livro/capítulo do hash
+    }
+
+    // ── Ouvir popstate para back/forward do browser ─────────────────────────
+    window.addEventListener("popstate", () => {
+      const tab = abaDoHash(window.location.hash);
+      if (tab) {
+        ativarAba(tab);
+        // Se voltar para a Bíblia via popstate, o BibliaUI já ouve popstate internamente
+      } else if (!window.location.hash || window.location.hash === "#") {
+        // Sem hash → volta para a aba padrão (pedidos)
+        ativarAba("pedidos");
+      }
+    });
+
+    // ── Navegação via query param ?biblia=Gn+1 (link da Oração do Dia em nova aba) ──
+    const _urlParams = new URLSearchParams(window.location.search);
+    const _bibliaParam = _urlParams.get("biblia");
+    if (_bibliaParam && window.BibliaUI) {
+      // Tenta parsear diretamente; se falhar (ex: "João 3:16"), extrai livro+capítulo
+      let _parsedParam = window.BibliaUI.parsearReferencia(_bibliaParam);
+      if (!_parsedParam) {
+        // Remove versículo (:xx) e tenta novamente — ex: "João 3:16" → "João 3"
+        const _semVersiculo = _bibliaParam
+          .replace(/:\d+(\s*[-–]\d+)?$/, "")
+          .trim();
+        _parsedParam = window.BibliaUI.parsearReferencia(_semVersiculo);
+      }
+      if (_parsedParam) {
         document.querySelectorAll(".tab-btn").forEach((b) => {
-          b.classList.remove("active");
-          b.setAttribute("aria-selected", "false");
+          b.classList.toggle("active", b.dataset.tab === "biblia");
+          b.setAttribute(
+            "aria-selected",
+            b.dataset.tab === "biblia" ? "true" : "false",
+          );
         });
         document
           .querySelectorAll(".section")
           .forEach((s) => s.classList.remove("active"));
-        btn.classList.add("active");
-        btn.setAttribute("aria-selected", "true");
+        const tabBiblia = document.getElementById("tab-biblia");
+        if (tabBiblia) tabBiblia.classList.add("active");
+        window.BibliaUI.navegarPara(_parsedParam.livroId, _parsedParam.cap);
+      } else {
+        // Mesmo sem parsear, abre a aba da bíblia para o usuário navegar
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.tab === "biblia");
+          b.setAttribute(
+            "aria-selected",
+            b.dataset.tab === "biblia" ? "true" : "false",
+          );
+        });
         document
-          .getElementById("tab-" + btn.dataset.tab)
-          .classList.add("active");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        const tabBiblia = document.getElementById("tab-biblia");
+        if (tabBiblia) tabBiblia.classList.add("active");
+      }
+    }
+
+    // Verificar navegação bíblica via sessionStorage (vindo do admin)
+    const _navBiblia = sessionStorage.getItem("biblia_nav");
+    if (_navBiblia && window.BibliaUI) {
+      try {
+        const _obj = JSON.parse(_navBiblia);
+        sessionStorage.removeItem("biblia_nav");
+        const _parsed = window.BibliaUI.parsearReferencia(_obj.ref);
+        if (_parsed) {
+          document.querySelectorAll(".tab-btn").forEach((b) => {
+            b.classList.toggle("active", b.dataset.tab === "biblia");
+            b.setAttribute(
+              "aria-selected",
+              b.dataset.tab === "biblia" ? "true" : "false",
+            );
+          });
+          document
+            .querySelectorAll(".section")
+            .forEach((s) => s.classList.remove("active"));
+          const tabBiblia = document.getElementById("tab-biblia");
+          if (tabBiblia) tabBiblia.classList.add("active");
+          window.BibliaUI.navegarPara(_parsed.livroId, _parsed.cap);
+        }
+      } catch (e) {
+        sessionStorage.removeItem("biblia_nav");
+      }
+    }
+  }
+
+  // ============================================================
+  // BOTÕES FLUTUANTES DE SCROLL (aba pedidos)
+  // ============================================================
+  (function iniciarScrollFab() {
+    const fab = document.getElementById("scroll-fab");
+    const btnTopo = document.getElementById("scroll-top-btn");
+    const btnFim = document.getElementById("scroll-bottom-btn");
+    if (!fab || !btnTopo || !btnFim) return;
+
+    function abaAtiva() {
+      const secao = document.querySelector(".section.active");
+      return secao ? secao.id : "";
+    }
+
+    function atualizarVisibilidade() {
+      if (abaAtiva() === "tab-pedidos") {
+        fab.classList.add("visible");
+        fab.setAttribute("aria-hidden", "false");
+      } else {
+        fab.classList.remove("visible");
+        fab.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    // Mostra/esconde ao trocar de aba
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // Aguarda o DOM atualizar a classe .active
+        requestAnimationFrame(atualizarVisibilidade);
       });
     });
-  }
+    window.addEventListener("popstate", () =>
+      requestAnimationFrame(atualizarVisibilidade),
+    );
+
+    // Estado inicial (a aba pedidos começa ativa por padrão)
+    atualizarVisibilidade();
+
+    btnTopo.addEventListener("click", () =>
+      window.scrollTo({ top: 0, behavior: "smooth" }),
+    );
+    btnFim.addEventListener("click", () =>
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }),
+    );
+  })();
 
   // ============================================================
   // TOAST

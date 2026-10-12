@@ -414,6 +414,66 @@ body.dark .hino-ref-link:hover {
   margin-top: 4px;
 }
 
+.pedido-data {
+  font-size: 0.72rem;
+  color: var(--texto-suave);
+  opacity: 0.75;
+  margin-top: 8px;
+  margin-bottom: 2px;
+}
+
+/* ============================================================
+   BOTÕES FLUTUANTES DE SCROLL (aba pedidos)
+   bottom: 80px para não sobrepor o banner do Netlify (~50px)
+   ============================================================ */
+.scroll-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.scroll-fab.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-fab-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--roxo);
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s,
+    transform 0.1s,
+    box-shadow 0.15s;
+}
+
+.scroll-fab-btn:hover {
+  background: var(--roxo-dark);
+  transform: scale(1.08);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-fab-btn:active {
+  transform: scale(0.95);
+}
+
 .reavivamento-text {
   font-size: 1.1rem;
   font-weight: 800;
