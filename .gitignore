@@ -17,8 +17,21 @@ npm-debug.log*
 .env.local
 .env*.local
 
+# Firebase
+# .firebase/ = cache de build do Hosting (gerado em cada deploy)
+.firebase/
+# firebase-import.json = artefato de migração com dados pessoais
+# (pedidos de oração reais). Mantenha fora do repo e do deploy.
+firebase-import.json
+
 # Gerado pelo build-env.js — contém credenciais do JSONBin, nunca commitar
 env-config.js
+
+# Config do Firebase — valores públicos (não são segredo), mas mantidos fora do
+# repo por preferência. Copie firebase-config.example.js para firebase-config.js
+# e preencha localmente. O firebase deploy publica a partir do disco, então o
+# arquivo gitignored ainda é publicado no Hosting.
+firebase-config.js
 
 # Editores
 .vscode/

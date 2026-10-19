@@ -1,72 +1,150 @@
 // ============================================================
 // ADMIN.JS — Painel de administração
-// Usa DB.js para ler/salvar no JSONBin. localStorage = cache.
+// Usa DB.js para ler/salvar no Firebase. localStorage = cache.
 // ============================================================
 
 (function () {
   "use strict";
 
   // ============================================================
-  // LOGIN
+  // LOGIN COM GOOGLE (Firebase Authentication)
   // ============================================================
   const loginScreen = document.getElementById("login-screen");
   const adminPanel = document.getElementById("admin-panel");
-  const senhaInput = document.getElementById("senha-input");
   const loginError = document.getElementById("login-error");
+  const loginInfo = document.getElementById("login-info");
+  const loginStatus = document.getElementById("login-status");
+  const loginStatusText = document.getElementById("login-status-text");
+  const btnLoginGoogle = document.getElementById("btn-login-google");
 
   let dados = null; // carregado após login
+  let authPronto = false;
 
-  if (sessionStorage.getItem("admin_logado") === "1") {
-    loginScreen.style.display = "none";
-    adminPanel.style.display = "block";
-    carregarEInicializar();
+  // E-mails autorizados a acessar o admin (de firebase-config.js).
+  // Vazio = qualquer conta Google pode acessar (modo aberto).
+  const ADMIN_EMAILS = Array.isArray(window.ADMIN_EMAILS)
+    ? window.ADMIN_EMAILS.map((e) => String(e).toLowerCase().trim()).filter(
+        Boolean,
+      )
+    : [];
+
+  function emailAutorizado(email) {
+    if (!email) return false;
+    if (ADMIN_EMAILS.length === 0) return true; // lista vazia = aberto
+    return ADMIN_EMAILS.includes(String(email).toLowerCase().trim());
   }
 
-  document
-    .getElementById("btn-login")
-    .addEventListener("click", () => fazerLogin());
-  senhaInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") fazerLogin();
-  });
+  function mostrarPainel(mostrar) {
+    loginScreen.style.display = mostrar ? "none" : "flex";
+    adminPanel.style.display = mostrar ? "block" : "none";
+  }
 
-  async function fazerLogin() {
-    // Primeiro carrega os dados para pegar a senha configurada no banco
-    setBtnLogin(true);
-    let dadosTemp;
-    try {
-      dadosTemp = await DB.ler();
-    } catch (e) {
-      dadosTemp = JSON.parse(JSON.stringify(SITE_DATA));
+  function mostrarStatusLogin(mostrar, texto) {
+    if (!loginStatus) return;
+    loginStatus.style.display = mostrar ? "flex" : "none";
+    if (texto) loginStatusText.textContent = texto;
+  }
+
+  function mostrarErroLogin(msg) {
+    if (!loginError) return;
+    loginError.textContent = "❌ " + msg;
+    loginError.style.display = "block";
+  }
+
+  // Traduz códigos de erro comuns do Firebase Auth
+  function traduzirErroAuth(code) {
+    const mapa = {
+      "auth/popup-closed-by-user": "Janela de login fechada.",
+      "auth/cancelled-popup-request": "Login cancelado.",
+      "auth/popup-blocked": "O popup foi bloqueado pelo navegador.",
+      "auth/network-request-failed": "Falha de rede. Verifique sua conexão.",
+      "auth/operation-not-allowed":
+        "Login com Google não ativado no Firebase Console.",
+      "auth/unauthorized-domain":
+        "Este domínio não está autorizado no Firebase Console.",
+      "auth/configuration-not-found":
+        "Configuração do provedor Google ausente no Firebase Console.",
+    };
+    return mapa[code] || "Falha ao fazer login com Google.";
+  }
+
+  // Inicializa o Firebase Auth e observa o estado de login
+  function initAuth() {
+    const cfg = (typeof window !== "undefined" && window.FIREBASE_CONFIG) || {};
+    if (typeof firebase === "undefined" || !firebase.auth) {
+      mostrarErroAuth(
+        "Não foi possível carregar o login do Google. Verifique a configuração do Firebase.",
+      );
+      return;
+    }
+    if (!firebase.apps || firebase.apps.length === 0) {
+      firebase.initializeApp(cfg);
     }
 
-    const correta =
-      dadosTemp.config && dadosTemp.config.senhaAdmin
-        ? dadosTemp.config.senhaAdmin
-        : SITE_DATA.config && SITE_DATA.config.senhaAdmin
-          ? SITE_DATA.config.senhaAdmin
-          : "oracao2026";
+    const auth = firebase.auth();
+    // Persistência LOCAL: mantém login entre sessões/navegador
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    setBtnLogin(false);
+    // Observa o estado de autenticação (dispara ao carregar a página)
+    auth.onAuthStateChanged(async (user) => {
+      authPronto = true;
+      if (user) {
+        // Verifica se o e-mail está autorizado
+        if (!emailAutorizado(user.email)) {
+          mostrarErroLogin(
+            "Este e-mail (" +
+              user.email +
+              ") não tem permissão para acessar o painel admin.",
+          );
+          try {
+            await auth.signOut();
+          } catch (e) {}
+          mostrarPainel(false);
+          dados = null;
+          return;
+        }
+        loginError.style.display = "none";
+        if (loginInfo) {
+          loginInfo.textContent = "✅ Conectado como " + user.email;
+          loginInfo.style.display = "block";
+        }
+        // Preenche o campo de conta conectada na aba Config
+        const cSenha = document.getElementById("c-senha");
+        if (cSenha) cSenha.value = user.email || "";
+        mostrarPainel(true);
+        if (!dados) await carregarEInicializar();
+      } else {
+        // Deslogado — volta para a tela de login
+        mostrarPainel(false);
+        dados = null;
+        if (loginInfo) loginInfo.style.display = "none";
+      }
+    });
+  }
 
-    if (senhaInput.value === correta) {
-      dados = dadosTemp;
-      sessionStorage.setItem("admin_logado", "1");
-      loginScreen.style.display = "none";
-      adminPanel.style.display = "block";
+  // Botão "Entrar com Google"
+  if (btnLoginGoogle) {
+    btnLoginGoogle.addEventListener("click", async () => {
       loginError.style.display = "none";
-      inicializar();
-    } else {
-      loginError.style.display = "block";
-      senhaInput.value = "";
-      senhaInput.focus();
-    }
+      btnLoginGoogle.disabled = true;
+      mostrarStatusLogin(true, "Conectando...");
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        // Sempre pedir seleção de conta (evita login silencioso com conta errada)
+        provider.setCustomParameters({ prompt: "select_account" });
+        await firebase.auth().signInWithPopup(provider);
+      } catch (err) {
+        console.warn("[Auth] Erro no login:", err);
+        mostrarErroLogin(traduzirErroAuth(err.code || err.message));
+      } finally {
+        btnLoginGoogle.disabled = false;
+        mostrarStatusLogin(false);
+      }
+    });
   }
 
-  function setBtnLogin(carregando) {
-    const btn = document.getElementById("btn-login");
-    btn.disabled = carregando;
-    btn.textContent = carregando ? "Verificando..." : "Entrar";
-  }
+  // Inicializa o fluxo de autenticação ao carregar
+  initAuth();
 
   async function carregarEInicializar() {
     mostrarLoadingAdmin(true);
@@ -99,7 +177,7 @@
       atualizarIndicadorDB(true);
     } else if (resultado.local) {
       showToast(
-        "💾 Salvo localmente. Configure o JSONBin para sincronizar.",
+        "💾 Salvo localmente. Configure o Firebase para sincronizar.",
         4000,
       );
       atualizarIndicadorDB(false);
@@ -1420,18 +1498,25 @@
       dados.config.nomeGrupo = document.getElementById("c-nome").value.trim();
       dados.config.linkSite = document.getElementById("c-link").value.trim();
       dados.config.mensagemWhatsApp = document.getElementById("c-msg").value;
-      const novaSenha = document.getElementById("c-senha").value;
-      if (novaSenha.trim()) {
-        dados.config.senhaAdmin = novaSenha.trim();
-        document.getElementById("c-senha").value = "";
-      }
+      // OBS: o login agora é por Google (Firebase Auth).
+      // O campo "c-senha" apenas exibe a conta conectada (somente leitura).
       await salvar("✅ Configurações salvas!");
     });
 
-  // --- Sair ---
-  document.getElementById("btn-sair").addEventListener("click", () => {
+  // --- Sair (desloga do Google) ---
+  document.getElementById("btn-sair").addEventListener("click", async () => {
+    try {
+      if (typeof firebase !== "undefined" && firebase.auth) {
+        await firebase.auth().signOut();
+      }
+    } catch (e) {
+      console.warn("[Auth] Erro ao sair:", e);
+    }
     sessionStorage.removeItem("admin_logado");
-    window.location.reload();
+    dados = null;
+    mostrarPainel(false);
+    if (loginInfo) loginInfo.style.display = "none";
+    // onAuthStateChanged trata a transição de volta para a tela de login
   });
 
   // ============================================================

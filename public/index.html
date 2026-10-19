@@ -494,12 +494,13 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <!-- Scripts -->
-    <!-- env-config.js é gerado pelo build-env.js no deploy do Netlify.
-       Define window.ENV_CONFIG com JSONBIN_BIN_ID e JSONBIN_API_KEY.
-       Deve ser carregado ANTES de db.js. -->
+    <!-- Firebase SDK (compat — sem build step) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <!-- Config pública do Firebase (edite firebase-config.js com os dados do seu projeto) -->
     <script
-      src="env-config.js"
-      onerror="window.ENV_CONFIG = window.ENV_CONFIG || {}"
+      src="firebase-config.js"
+      onerror="window.FIREBASE_CONFIG = window.FIREBASE_CONFIG || {}"
     ></script>
     <script src="data.js"></script>
     <script src="db.js"></script>

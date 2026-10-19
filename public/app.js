@@ -1,6 +1,6 @@
 // ============================================================
 // APP.JS — Tela pública
-// Carrega dados do JSONBin (via db.js) e renderiza o site
+// Carrega dados do Firebase (via db.js) e renderiza o site
 // ============================================================
 
 (function () {
@@ -9,6 +9,8 @@
   // ============================================================
   // BOOTSTRAP — carrega dados e inicializa
   // ============================================================
+  let primeiroEventoRT = true;
+
   async function iniciar() {
     mostrarSkeleton(true);
     let D;
@@ -23,16 +25,30 @@
     mostrarSkeleton(false);
     renderTudo(D);
 
+    // Assina mudanças em tempo real no banco (orando de outra aba,
+    // novo pedido enviado, edição no admin, etc.).
+    // Re-renderiza só a lista de pedidos (com contagens e novos itens),
+    // sem mexer no formulário de novo pedido pra não perder o que foi
+    // digitado.
+    DB.observar((dadosNovos) => {
+      if (primeiroEventoRT) {
+        // o renderTudo acima já pintou a tela; ignora o 1º evento
+        primeiroEventoRT = false;
+        return;
+      }
+      if (dadosNovos && typeof dadosNovos === "object") {
+        dadosGlobais = dadosNovos;
+        renderPedidos(dadosNovos.pedidos || [], dadosNovos);
+      }
+    });
+
     // Registra visita em background (flag de sessão para não contar a mesma aba duas vezes)
     if (!sessionStorage.getItem("visita_contada")) {
       sessionStorage.setItem("visita_contada", "1");
       try {
-        DB.invalidarCache();
-        const dadosVisita = await DB.ler();
-        if (!dadosVisita.config) dadosVisita.config = {};
-        dadosVisita.config.visualizacoes =
-          parseInt(dadosVisita.config.visualizacoes || 0) + 1;
-        await DB.salvar(dadosVisita);
+        // Transação atômica: incrementa só o contador, sem sobrescrever
+        // o restante dos dados (pedidos, orações, etc.).
+        DB.incrementarVisualizacoes();
       } catch (e) {
         /* falha silenciosa */
       }
