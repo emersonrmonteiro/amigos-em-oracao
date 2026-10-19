@@ -449,7 +449,21 @@
       el.textContent = dados.config.visualizacoes.toLocaleString("pt-BR");
     }
     configurarLinkBiblia("h-referencia", "h-referencia-link");
-    configurarLinkBiblia("mm-referencia", "mm-referencia-link");
+    // Motivos: link bíblico baseado na primeira referência da lista dinâmica
+    var mmLink = document.getElementById("mm-referencia-link");
+    if (mmLink) {
+      mmLink.addEventListener("click", function (e) {
+        e.preventDefault();
+        var livroId = this.dataset.livro;
+        var cap = this.dataset.cap;
+        if (!livroId || !cap) return;
+        sessionStorage.setItem(
+          "biblia_nav",
+          JSON.stringify({ livroId: livroId, cap: parseInt(cap) }),
+        );
+        window.open("index.html", "_blank");
+      });
+    }
   }
 
   // ============================================================
@@ -942,13 +956,30 @@
     const container = document.getElementById("motivos-admin-list");
     container.innerHTML = "";
     (dados.motivosGerais || []).forEach((m, idx) => {
+      const referencias = Array.isArray(m.referencias)
+        ? m.referencias
+        : m.referencia
+          ? [m.referencia]
+          : [];
+      const links = Array.isArray(m.links) ? m.links : m.link ? [m.link] : [];
+
       const card = document.createElement("div");
-      card.className = "admin-card";
+      card.className = "admin-card drag-card";
+      card.setAttribute("draggable", "false");
+      card.dataset.motivoIdx = idx;
+
+      const subParts = [];
+      if (referencias.length) subParts.push(`📖 ${referencias.length} ref`);
+      if (links.length)
+        subParts.push(`🎵 ${links.length} link${links.length > 1 ? "s" : ""}`);
+      const sub = subParts.join(" • ");
+
       card.innerHTML = `
-        <div class="admin-card-header">
-          <div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div class="drag-handle">☰</div>
+          <div style="flex:1;min-width:0">
             <div class="admin-card-nome">${m.titulo}</div>
-            <div class="admin-card-sub">${m.referencia || ""} ${m.link ? "| 🎵 Link YouTube" : ""}</div>
+            <div class="admin-card-sub">${sub}</div>
           </div>
           <div class="admin-card-acoes">
             <button class="btn-sm" style="background:#e8f0ff;color:var(--roxo)" data-action="editar" data-idx="${idx}">✏️ Editar</button>
@@ -972,6 +1003,13 @@
         await salvar("🗑️ Motivo removido.");
       }),
     );
+    ativarDragDrop(container, ".drag-card", async (novaOrdem) => {
+      dados.motivosGerais = novaOrdem
+        .map((el) => dados.motivosGerais[parseInt(el.dataset.motivoIdx)])
+        .filter(Boolean);
+      renderMotivosAdmin();
+      await salvar("↕️ Ordem dos motivos salva!");
+    });
   }
 
   const modalMotivo = document.getElementById("modal-motivo");
@@ -983,16 +1021,106 @@
       : "Novo Motivo";
     document.getElementById("mm-idx").value = idx;
     document.getElementById("mm-titulo").value = m ? m.titulo || "" : "";
-    document.getElementById("mm-referencia").value = m
-      ? m.referencia || ""
-      : "";
-    document.getElementById("mm-link").value = m ? m.link || "" : "";
     document.getElementById("mm-descricao").value = m ? m.descricao || "" : "";
-    // Atualiza o link bíblico ao abrir o modal
-    var ev = new Event("input");
-    var mmRef = document.getElementById("mm-referencia");
-    if (mmRef) mmRef.dispatchEvent(ev);
+
+    // Normaliza referências e links (aceita formato antigo singular)
+    const referencias = m
+      ? Array.isArray(m.referencias)
+        ? m.referencias.slice()
+        : m.referencia
+          ? [m.referencia]
+          : []
+      : [""];
+    const links = m
+      ? Array.isArray(m.links)
+        ? m.links.slice()
+        : m.link
+          ? [m.link]
+          : []
+      : [""];
+
+    renderMultiInput(
+      document.getElementById("mm-referencias-list"),
+      referencias,
+      "Ex: II Coríntios 4:8",
+    );
+    renderMultiInput(
+      document.getElementById("mm-links-list"),
+      links,
+      "https://youtu.be/...",
+    );
+
+    // Atualiza o link bíblico (primeira referência não vazia)
+    atualizarLinkBibliaMulti();
     modalMotivo.classList.add("open");
+  }
+
+  // ----------------------------------------------------------
+  // Helper: renderiza uma lista de inputs dinâmicos (refs/links)
+  // Cada linha: [input] [remover] — sempre mantém pelo menos 1.
+  // ----------------------------------------------------------
+  function renderMultiInput(container, values, placeholder) {
+    if (!container) return;
+    // Garante pelo menos 1 campo
+    const lista = values && values.length ? values.slice() : [""];
+    container.innerHTML = "";
+    lista.forEach((val, i) => {
+      const row = document.createElement("div");
+      row.className = "multi-input-row";
+      const input = document.createElement("input");
+      input.className = "form-input";
+      input.type = "text";
+      input.value = val || "";
+      input.placeholder = placeholder || "";
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-remove-input";
+      removeBtn.innerHTML = "✕";
+      removeBtn.title = "Remover";
+      removeBtn.addEventListener("click", () => {
+        row.remove();
+        // Se ficar sem nenhuma linha, recria uma vazia
+        if (!container.querySelector(".multi-input-row")) {
+          renderMultiInput(container, [""], placeholder);
+        }
+        atualizarLinkBibliaMulti();
+      });
+      input.addEventListener("input", atualizarLinkBibliaMulti);
+      row.appendChild(input);
+      row.appendChild(removeBtn);
+      container.appendChild(row);
+    });
+  }
+
+  // Coleta os valores (não vazios) de um container multi-input
+  function coletarMultiInput(container) {
+    if (!container) return [];
+    const valores = [];
+    container.querySelectorAll(".multi-input-row input").forEach((inp) => {
+      const v = inp.value.trim();
+      if (v) valores.push(v);
+    });
+    return valores;
+  }
+
+  // Atualiza o "Ver capítulo no site" com a primeira referência válida
+  function atualizarLinkBibliaMulti() {
+    const link = document.getElementById("mm-referencia-link");
+    const container = document.getElementById("mm-referencias-list");
+    if (!link || !container) return;
+    const primeiro = coletarMultiInput(container)[0] || "";
+    if (!primeiro) {
+      link.style.display = "none";
+      return;
+    }
+    const nav = parsearRefSimples(primeiro);
+    if (nav) {
+      link.style.display = "inline-flex";
+      link.dataset.livro = nav.livroId;
+      link.dataset.cap = nav.cap;
+    } else {
+      link.style.display = "none";
+    }
   }
 
   document
@@ -1005,14 +1133,41 @@
     if (e.target === modalMotivo) modalMotivo.classList.remove("open");
   });
 
+  document.getElementById("mm-add-referencia").addEventListener("click", () => {
+    const c = document.getElementById("mm-referencias-list");
+    renderMultiInput(
+      c,
+      coletarMultiInput(c).concat(""),
+      "Ex: II Coríntios 4:8",
+    );
+    // Foca o último input (recém-adicionado)
+    const inputs = c.querySelectorAll(".multi-input-row input");
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+
+  document.getElementById("mm-add-link").addEventListener("click", () => {
+    const c = document.getElementById("mm-links-list");
+    renderMultiInput(
+      c,
+      coletarMultiInput(c).concat(""),
+      "https://youtu.be/...",
+    );
+    const inputs = c.querySelectorAll(".multi-input-row input");
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+
   document
     .getElementById("btn-salvar-motivo")
     .addEventListener("click", async () => {
       const idx = parseInt(document.getElementById("mm-idx").value);
+      const referencias = coletarMultiInput(
+        document.getElementById("mm-referencias-list"),
+      );
+      const links = coletarMultiInput(document.getElementById("mm-links-list"));
       const motivo = {
         titulo: document.getElementById("mm-titulo").value.trim(),
-        referencia: document.getElementById("mm-referencia").value.trim(),
-        link: document.getElementById("mm-link").value.trim(),
+        referencias: referencias,
+        links: links,
         descricao: document.getElementById("mm-descricao").value.trim(),
       };
       if (!motivo.titulo) {

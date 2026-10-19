@@ -430,6 +430,15 @@
               ➕ Novo Motivo
             </button>
           </div>
+          <div
+            style="
+              font-size: 0.75rem;
+              color: var(--texto-suave);
+              margin-bottom: 10px;
+            "
+          >
+            ☰ Arraste pelo ícone para reordenar os motivos
+          </div>
           <div id="motivos-admin-list"></div>
         </div>
 
@@ -867,15 +876,11 @@
           />
         </div>
         <div class="form-group">
-          <label class="form-label" for="mm-referencia"
-            >Referência Bíblica</label
-          >
-          <input
-            class="form-input"
-            id="mm-referencia"
-            type="text"
-            placeholder="Ex: II Coríntios 4:8"
-          />
+          <label class="form-label">Referências Bíblicas</label>
+          <div id="mm-referencias-list" class="multi-input-list"></div>
+          <button type="button" class="btn-add-input" id="mm-add-referencia">
+            ➕ Adicionar referência
+          </button>
           <a
             id="mm-referencia-link"
             href="#"
@@ -886,13 +891,11 @@
           >
         </div>
         <div class="form-group">
-          <label class="form-label" for="mm-link">Link YouTube</label>
-          <input
-            class="form-input"
-            id="mm-link"
-            type="url"
-            placeholder="https://youtu.be/..."
-          />
+          <label class="form-label">Links do YouTube</label>
+          <div id="mm-links-list" class="multi-input-list"></div>
+          <button type="button" class="btn-add-input" id="mm-add-link">
+            ➕ Adicionar link
+          </button>
         </div>
         <div class="form-group">
           <label class="form-label" for="mm-descricao"

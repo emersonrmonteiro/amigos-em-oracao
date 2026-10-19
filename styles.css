@@ -532,6 +532,20 @@ body.dark .hino-ref-link:hover {
   font-weight: 600;
   margin-top: 6px;
 }
+/* Container que empilha os botões "Ore comigo" de um motivo */
+.motivo-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  margin-top: 2px;
+}
+/* Links secundários (2º em diante) — menores e discretos */
+.motivo-link.motivo-link-sec {
+  font-size: 0.66rem;
+  opacity: 0.82;
+  margin-top: 0;
+}
 
 /* ============================================================
    LISTA DE INTERCEDIDOS
@@ -1179,6 +1193,58 @@ body.dark .hino-ref-link:hover {
 }
 .drag-handle:active {
   cursor: grabbing;
+}
+
+/* ============================================================
+   MULTI-INPUT (listas dinâmicas no admin — refs/links de motivos)
+   ============================================================ */
+.multi-input-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.multi-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.multi-input-row .form-input {
+  flex: 1;
+  min-width: 0;
+}
+.btn-remove-input {
+  flex-shrink: 0;
+  width: 32px;
+  height: 36px;
+  border: 1px solid var(--borda);
+  background: #fde8e8;
+  color: var(--vermelho, #c0392b);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    transform 0.1s;
+}
+.btn-remove-input:hover {
+  background: #fbd5d5;
+  transform: scale(1.05);
+}
+.btn-add-input {
+  margin-top: 6px;
+  background: #f0f4ff;
+  color: var(--roxo);
+  border: 1px dashed var(--roxo-light, #8a7fb0);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-add-input:hover {
+  background: #e6ecff;
 }
 
 /* ============================================================

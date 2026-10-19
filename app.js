@@ -431,9 +431,21 @@
     container.innerHTML = "";
 
     motivos.forEach((m) => {
-      const ytId = m.link ? extrairYoutubeId(m.link) : null;
+      // Compatibilidade: aceita arrays (novo) ou campo singular (antigo)
+      const links = Array.isArray(m.links) ? m.links : m.link ? [m.link] : [];
+      const referencias = Array.isArray(m.referencias)
+        ? m.referencias
+        : m.referencia
+          ? [m.referencia]
+          : [];
+
+      // Thumbnail do primeiro link válido com YouTube ID
+      const firstLink =
+        links.find((l) => l && extrairYoutubeId(l)) || links[0] || "";
+      const ytId = firstLink ? extrairYoutubeId(firstLink) : null;
+
       const card = document.createElement("div");
-      card.className = "motivo-card" + (m.link ? " tem-link" : "");
+      card.className = "motivo-card" + (links.length ? " tem-link" : "");
 
       const thumbHtml = ytId
         ? `<div class="motivo-thumb">
@@ -444,46 +456,55 @@
            </div>`
         : "";
 
+      // Botões "Ore comigo" — um por link
+      const linksHtml = links
+        .filter(Boolean)
+        .map(
+          (lk, i) =>
+            `<a href="${lk}" target="_blank" rel="noopener" class="motivo-link${i === 0 ? "" : " motivo-link-sec"}">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          ${i === 0 ? "Ore comigo" : "Ore comigo " + (i + 1)}</a>`,
+        )
+        .join("");
+
       card.innerHTML = `
         ${thumbHtml}
         <div class="motivo-titulo">${m.titulo}</div>
-        ${m.referencia ? `<div class="motivo-ref motivo-referencia"></div>` : ""}
+        ${referencias.length ? `<div class="motivo-ref motivo-referencia"></div>` : ""}
         ${m.descricao ? `<div class="motivo-desc">${m.descricao}</div>` : ""}
-        ${
-          m.link
-            ? `<a href="${m.link}" target="_blank" rel="noopener" class="motivo-link">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-          Ore comigo</a>`
-            : ""
-        }`;
+        <div class="motivo-links">${linksHtml}</div>`;
 
-      // Referência bíblica clicável
-      if (m.referencia) {
+      // Referências bíblicas (uma ou várias) clicáveis
+      if (referencias.length) {
         const refDiv = card.querySelector(".motivo-referencia");
         if (refDiv) {
-          const parsed =
-            window.BibliaUI && window.BibliaUI.parsearReferencia(m.referencia);
-          if (parsed) {
-            const linkRef = document.createElement("a");
-            linkRef.href = "#";
-            linkRef.textContent = m.referencia;
-            linkRef.style.cssText =
-              "color:var(--roxo);text-decoration:underline;cursor:pointer;font-size:0.7rem;";
-            linkRef.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              ativarAba("biblia");
-              window.BibliaUI.navegarPara(parsed.livroId, parsed.cap);
-            });
-            refDiv.appendChild(linkRef);
-          } else {
-            refDiv.textContent = m.referencia;
-          }
+          referencias.forEach((ref, i) => {
+            if (i > 0) refDiv.appendChild(document.createTextNode(" • "));
+            const parsed =
+              window.BibliaUI && window.BibliaUI.parsearReferencia(ref);
+            if (parsed) {
+              const linkRef = document.createElement("a");
+              linkRef.href = "#";
+              linkRef.textContent = ref;
+              linkRef.style.cssText =
+                "color:var(--roxo);text-decoration:underline;cursor:pointer;font-size:0.7rem;";
+              linkRef.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                ativarAba("biblia");
+                window.BibliaUI.navegarPara(parsed.livroId, parsed.cap);
+              });
+              refDiv.appendChild(linkRef);
+            } else {
+              refDiv.appendChild(document.createTextNode(ref));
+            }
+          });
         }
       }
-      if (m.link)
+      if (firstLink)
         card.addEventListener("click", (e) => {
-          if (!e.target.closest("a")) window.open(m.link, "_blank", "noopener");
+          if (!e.target.closest("a"))
+            window.open(firstLink, "_blank", "noopener");
         });
       container.appendChild(card);
     });
